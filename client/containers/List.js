@@ -1,6 +1,6 @@
 import React from 'react'
-import { useViewModel } from '../../common/hooks/use_view_model'
-import { useCommand } from '../../common/hooks/use_command'
+
+import { useViewModel, useCommand } from '../../hooks'
 
 const viewModelName = 'myViewModel'
 const aggregateId = '63adaa7d-bcf0-4d0f-bb22-3dce823c6019'
