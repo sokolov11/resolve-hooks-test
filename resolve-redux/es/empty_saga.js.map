@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/empty_saga.js"],"names":["emptySaga"],"mappings":";;AAAA,IAAMA,SAAS;AAAA;AAAA,yBAAG,SAAZA,SAAY;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,KAAZA,SAAY;AAAA,CAAH,CAAf;;AAEA,eAAeA,SAAf","sourcesContent":["const emptySaga = function*() {}\n\nexport default emptySaga\n"],"file":"empty_saga.js"}

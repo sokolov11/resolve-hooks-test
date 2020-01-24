@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/resolve_context.js"],"names":["React","createContext","Provider","Consumer"],"mappings":";;;;;;;AAAA;;2BAE+BA,kBAAMC,aAAN,E;IAAvBC,Q,wBAAAA,Q;IAAUC,Q,wBAAAA,Q","sourcesContent":["import React from 'react'\n\nconst { Provider, Consumer } = React.createContext()\n\nexport { Provider, Consumer }\n"],"file":"resolve_context.js"}
