@@ -70,3 +70,5 @@ package-lock.json
 code.zip
 static.zip
 
+resolve-react/lib
+
