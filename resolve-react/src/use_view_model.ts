@@ -1,39 +1,31 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer, useContext } from 'react'
 
 import createApi from './create_api'
 import getOrigin from './get_origin'
 
-interface ViewModelState {
-  data: object,
-  isLoading: boolean,
-  isError: Error | null
-}
-
-import {
-  LOAD_VIEWMODEL_STATE_FAILURE,
-  LOAD_VIEWMODEL_STATE_SUCCESS,
-  LOAD_VIEWMODEL_STATE_REQUEST
-} from './action_types'
+import ResolveContext from './context'
 
 import {
   loadViewModelStateFailure,
   loadViewModelStateSuccess,
   loadViewModelStateRequest,
-  LoadViewModelAction
-} from './actions'
 
-const loadReducer = (state: ViewModelState, action: LoadViewModelAction): ViewModelState => {
+  ViewModelState,
+  LoadViewModelState
+} from './view_model_types'
+
+const loadReducer = (state: ViewModelState, action: any): ViewModelState => {
   switch (action.type) {
-    case LOAD_VIEWMODEL_STATE_REQUEST:
+    case LoadViewModelState.REQUEST:
       return { ...state, isLoading: true, isError: null }
-    case LOAD_VIEWMODEL_STATE_SUCCESS:
+    case LoadViewModelState.SUCCESS:
       return {
         ...state,
         data: action.result,
         isLoading: false,
         isError: null
       }
-    case LOAD_VIEWMODEL_STATE_FAILURE:
+    case LoadViewModelState.FAILURE:
       return { ...state, isLoading: false, isError: action.error }
     default:
       return { ...state }
@@ -46,8 +38,15 @@ const useViewModel = (
   aggregateArgs: object,
   inititalData: object
 ): Array<any> => {
+  const context = useContext(ResolveContext)
+  console.log(context)
+
+  if (!context) {
+    throw Error('You cannot use resolve effects outside Resolve context')
+  }
+  const { rootPath } = context
   const origin = getOrigin()
-  const api = createApi({ origin, rootPath: '' })
+  const api = createApi({ origin, rootPath })
 
   const [state, dispatch] = useReducer(loadReducer, {
     isLoading: false,
@@ -64,16 +63,12 @@ const useViewModel = (
         loadViewModelStateRequest(viewModelName, aggregateIds, aggregateArgs)
       )
       try {
-        console.log('requesting...', viewModelName)
+        console.log('requesting viewModel', viewModelName)
         const data = await api.loadViewModelState({
           viewModelName,
           aggregateIds,
           aggregateArgs
         })
-
-        // const result = await axios(
-        //   `http://localhost:3000/api/query/${viewModelName}/${aggregateId}` // TODO add rootPath as parameter
-        // )
 
         if (!unmounted) {
           dispatch(

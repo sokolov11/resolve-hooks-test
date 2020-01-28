@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useViewModel, useCommand } from '../../hooks'
+import { useViewModel/* , useCommand */ } from 'resolve-react-hooks'
 
 const viewModelName = 'myViewModel'
 const aggregateId = '63adaa7d-bcf0-4d0f-bb22-3dce823c6019'
@@ -13,7 +13,7 @@ function List() {
     null
   )
 
-  const sendCommand = useCommand()
+  // const sendCommand = useCommand()
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -38,12 +38,12 @@ function List() {
       &nbsp;
       <button
         onClick={() => {
-          sendCommand({
+          /* sendCommand({
             commandType: 'createShoppingItem',
             payload: { text: 'list item', id: new Date().getTime() },
             aggregateId,
             aggregateName: 'ShoppingList'
-          })
+          }) */
         }}
       >
         send command

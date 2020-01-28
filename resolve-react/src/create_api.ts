@@ -43,11 +43,11 @@ export const temporaryErrorHttpCodes = [
   524 // A Timeout Occurred
 ]
 
-const doFetch = (...args) => {
+const doFetch = (rootBasedUrl, options) => {
   try {
-    return fetch(...args)
+    return fetch(rootBasedUrl, options)
   } catch (err) {
-    return unfetch(...args)
+    return unfetch(rootBasedUrl, options)
   }
 }
 
@@ -61,7 +61,7 @@ const validateStatus = async response => {
   }
 }
 
-const createApi = ({ origin, rootPath, jwtProvider, store }) => {
+const createApi = ({ origin, rootPath/* , jwtProvider, store */ }) => {
   const request = async (url, body) => {
     const rootBasedUrl = getRootBasedUrl(origin, rootPath, url)
     const options = {

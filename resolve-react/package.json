@@ -1,9 +1,16 @@
 {
   "name": "resolve-react",
   "version": "1.0.0",
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
   "scripts": {
     "build": "tsc",
     "test": "jest"
+  },
+  "devDependencies": {
+    "@types/react": "*",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.7.5"
   },
   "jest": {
     "verbose": true,

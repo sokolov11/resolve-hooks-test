@@ -4,6 +4,7 @@
   "description": "used as a template for new reSolve applications",
   "private": true,
   "scripts": {
+    "preinstall": "rm-local-modules",
     "build": "babel-node ./run.js build",
     "cloud": "babel-node ./run.js cloud",
     "dev": "babel-node ./run.js dev",
@@ -22,6 +23,7 @@
     "react-helmet": "5.2.0",
     "redux": "4.0.1",
     "redux-devtools-extension": "2.13.7",
+    "resolve-react-hooks": "file:./resolve-react",
     "resolve-readmodel-lite": "0.21.13",
     "resolve-readmodel-mysql": "0.21.13",
     "resolve-redux": "0.21.13",
@@ -34,7 +36,6 @@
     "webpack": "4.41.2"
   },
   "devDependencies": {
-    "@types/jest": "^24.9.1",
     "@babel/core": "7.0.0",
     "@babel/plugin-proposal-class-properties": "7.0.0",
     "@babel/plugin-proposal-export-default-from": "7.0.0",
@@ -42,19 +43,21 @@
     "@babel/plugin-transform-runtime": "7.0.0",
     "@babel/preset-env": "7.0.0",
     "@babel/preset-react": "7.0.0",
+    "@types/jest": "^24.9.1",
     "aws-sdk": "2.587.0",
     "aws-xray-sdk-core": "2.5.0",
     "babel-jest": "24.1.0",
-    "jest": "24.1.0",
-    "react-test-renderer": "16.7.0",
-    "resolve-cloud": "*",
-    "testcafe": "0.23.3",
-    "ts-jest": "^24.2.0",
-    "typescript": "^3.6.3",
     "eslint": "6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.4.0",
     "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-prettier": "^3.1.0"
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "24.1.0",
+    "react-test-renderer": "16.7.0",
+    "resolve-cloud": "*",
+    "rm-local-modules": "^0.0.2",
+    "testcafe": "0.23.3",
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.6.3"
   }
 }
