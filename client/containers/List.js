@@ -8,7 +8,7 @@ const aggregateId = '63adaa7d-bcf0-4d0f-bb22-3dce823c6019'
 function List() {
   const [{ data, isLoading, isError }, setViewModelArgs] = useViewModel(
     viewModelName,
-    aggregateId,
+    [aggregateId],
     {},
     null
   )
@@ -25,16 +25,17 @@ function List() {
         <div>Error</div>
       ) : (
         <code>
-          <pre style={{ 'whiteSpace': 'pre-wrap' }}>{data}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap' }}>{data}</pre>
         </code>
       )}
       <button
         onClick={() => {
-          setViewModelArgs({ rnd: Math.random() })
+          setViewModelArgs({})
         }}
       >
         reload
-      </button>&nbsp;
+      </button>
+      &nbsp;
       <button
         onClick={() => {
           sendCommand({

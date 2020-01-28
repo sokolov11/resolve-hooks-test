@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useReducer } from 'react'
-// import axios from 'axios'
 
 import createApi from './create_api'
 import getOrigin from './get_origin'
+
+interface ViewModelState {
+  data: object,
+  isLoading: boolean,
+  isError: Error | null
+}
 
 import {
   LOAD_VIEWMODEL_STATE_FAILURE,
@@ -13,19 +18,20 @@ import {
 import {
   loadViewModelStateFailure,
   loadViewModelStateSuccess,
-  loadViewModelStateRequest
+  loadViewModelStateRequest,
+  LoadViewModelAction
 } from './actions'
 
-const loadReducer = (state, action) => {
+const loadReducer = (state: ViewModelState, action: LoadViewModelAction): ViewModelState => {
   switch (action.type) {
     case LOAD_VIEWMODEL_STATE_REQUEST:
-      return { ...state, isLoading: true, isError: false }
+      return { ...state, isLoading: true, isError: null }
     case LOAD_VIEWMODEL_STATE_SUCCESS:
       return {
         ...state,
         data: action.result,
         isLoading: false,
-        isError: false
+        isError: null
       }
     case LOAD_VIEWMODEL_STATE_FAILURE:
       return { ...state, isLoading: false, isError: action.error }
@@ -35,11 +41,11 @@ const loadReducer = (state, action) => {
 }
 
 const useViewModel = (
-  viewModelName,
-  aggregateId,
-  aggregateArgs,
-  inititalData
-) => {
+  viewModelName: string,
+  aggregateIds: Array<string>,
+  aggregateArgs: object,
+  inititalData: object
+): Array<any> => {
   const origin = getOrigin()
   const api = createApi({ origin, rootPath: '' })
 
@@ -55,13 +61,13 @@ const useViewModel = (
 
     const doLoadViewModelState = async () => {
       dispatch(
-        loadViewModelStateRequest(viewModelName, aggregateId, aggregateArgs)
+        loadViewModelStateRequest(viewModelName, aggregateIds, aggregateArgs)
       )
       try {
         console.log('requesting...', viewModelName)
         const data = await api.loadViewModelState({
           viewModelName,
-          aggregateIds: [aggregateId],
+          aggregateIds,
           aggregateArgs
         })
 
@@ -73,10 +79,10 @@ const useViewModel = (
           dispatch(
             loadViewModelStateSuccess(
               viewModelName,
-              aggregateId,
+              aggregateIds,
               args,
               data.result,
-              new Date().getTime
+              new Date().getTime()
             )
           )
         }
@@ -84,7 +90,7 @@ const useViewModel = (
         console.log(error)
         if (!unmounted) {
           dispatch(
-            loadViewModelStateFailure(viewModelName, aggregateId, args, error)
+            loadViewModelStateFailure(viewModelName, aggregateIds, args, error)
           )
         }
       }

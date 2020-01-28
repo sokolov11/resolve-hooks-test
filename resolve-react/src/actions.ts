@@ -130,25 +130,40 @@ export const disconnectViewModel = (
   aggregateArgs
 })
 
+interface LoadViewModelStateRequest {
+  type: string,
+  viewModelName: string,
+  aggregateIds: Array<string>,
+  aggregateArgs: object
+}
+
 export const loadViewModelStateRequest = (
-  viewModelName,
-  aggregateIds,
-  aggregateArgs
-) => ({
+  viewModelName: string,
+  aggregateIds: Array<string>,
+  aggregateArgs: object
+): LoadViewModelStateRequest => ({
   type: LOAD_VIEWMODEL_STATE_REQUEST,
   viewModelName,
   aggregateIds,
   aggregateArgs
 })
 
-// TODO fix docs
+interface LoadViewModelStateSuccess {
+  type: string,
+  viewModelName: string,
+  aggregateIds: Array<string>,
+  aggregateArgs: object,
+  result: object,
+  timestamp: number
+}
+
 export const loadViewModelStateSuccess = (
-  viewModelName,
-  aggregateIds,
-  aggregateArgs,
-  result,
-  timestamp
-) => ({
+  viewModelName: string,
+  aggregateIds: Array<string>,
+  aggregateArgs: object,
+  result: object,
+  timestamp: number
+): LoadViewModelStateSuccess => ({
   type: LOAD_VIEWMODEL_STATE_SUCCESS,
   viewModelName,
   aggregateIds,
@@ -157,18 +172,28 @@ export const loadViewModelStateSuccess = (
   timestamp
 })
 
+interface LoadViewModelStateFailure {
+  type: string,
+  viewModelName: string,
+  aggregateIds: Array<string>,
+  aggregateArgs: object,
+  error: Error
+}
+
 export const loadViewModelStateFailure = (
-  viewModelName,
-  aggregateIds,
-  aggregateArgs,
-  error
-) => ({
+  viewModelName: string,
+  aggregateIds: Array<string>,
+  aggregateArgs: object,
+  error: Error
+): LoadViewModelStateFailure => ({
   type: LOAD_VIEWMODEL_STATE_FAILURE,
   viewModelName,
   aggregateIds,
   aggregateArgs,
   error
 })
+
+export type LoadViewModelAction = LoadViewModelStateRequest | LoadViewModelStateSuccess | LoadViewModelStateFailure
 
 export const dropViewModelState = (
   viewModelName,
