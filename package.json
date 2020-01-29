@@ -4,7 +4,6 @@
   "description": "used as a template for new reSolve applications",
   "private": true,
   "scripts": {
-    "preinstall": "rm-local-modules",
     "build": "babel-node ./run.js build",
     "cloud": "babel-node ./run.js cloud",
     "dev": "babel-node ./run.js dev",
@@ -44,6 +43,8 @@
     "@babel/preset-env": "7.0.0",
     "@babel/preset-react": "7.0.0",
     "@types/jest": "^24.9.1",
+    "@typescript-eslint/eslint-plugin": "^2.3.3",
+    "@typescript-eslint/parser": "^2.3.3",
     "aws-sdk": "2.587.0",
     "aws-xray-sdk-core": "2.5.0",
     "babel-jest": "24.1.0",
@@ -58,6 +59,9 @@
     "rm-local-modules": "^0.0.2",
     "testcafe": "0.23.3",
     "ts-jest": "^24.2.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.3",
+    "prettier": "1.19.1",
+    "prettier-eslint-cli": "^5.0.0",
+    "pretty-quick": "^1.6.0"
   }
 }

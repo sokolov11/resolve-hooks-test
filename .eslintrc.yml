@@ -16,7 +16,15 @@ env:
   node: true
   jest: true
 rules:
+  import/extensions: ['error', 'ignorePackages', {
+      "js": "never",
+      "jsx": "never",
+      "ts": "never",
+      "tsx": "never"
+    }
+  ]
   newline-per-chained-call: ['warn', { ignoreChainWithDepth: 2 } ]
+  dot-notation: 'off'
   no-console: 'off'
   no-plusplus: 'off'
   no-param-reassign: ['error', { props: false }]

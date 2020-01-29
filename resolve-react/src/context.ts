@@ -1,5 +1,10 @@
 import React from 'react'
+import { JSONWebTokenProvider } from './jwt_provider'
 
-const ResolveContext = React.createContext(null)
+export const ResolveContext = React.createContext(null)
 
-export default ResolveContext
+export interface Context {
+  origin?: string
+  rootPath: string
+  jwtProvider?: JSONWebTokenProvider
+}
