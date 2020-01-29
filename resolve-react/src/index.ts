@@ -1,5 +1,5 @@
 import { useViewModel } from './use_view_model'
+import { useCommand } from './use_command'
 import ResolveContext from './context'
-// import { useCommand } from './use_command'
 
-export { useViewModel, ResolveContext /* , useCommand */ }
+export { useViewModel, useCommand, ResolveContext }

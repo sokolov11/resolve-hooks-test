@@ -35,8 +35,8 @@ const commandReducer = (state, action) => {
 
 const useCommand = () => {
   const origin = getOrigin()
-  const [command, setCommand] = useState(null)
-  // command: { commandType, payload, aggregateId, aggregateName }
+  const [command, setCommand] = useState({ aggregateId: null, aggregateName: null, payload: {}, commandType: null })
+  const { commandType, payload, aggregateId, aggregateName } = command
 
   const api = createApi({ origin, rootPath: '' })
 
@@ -48,23 +48,26 @@ const useCommand = () => {
   useEffect(() => {
     let unmounted = false
     const doSendCommand = async () => {
-      console.log('sending...', command)
-      dispatch(sendCommandRequest(command))
+      console.log('sending command', command)
+      if (!aggregateId) {
+        return
+      }
+      dispatch(sendCommandRequest(commandType, aggregateId, aggregateName, payload))
       try {
-        await api.sendCommand(command)
+        await api.sendCommand({ commandType, payload, aggregateId, aggregateName })
 
         if (!unmounted) {
-          dispatch(sendCommandSuccess(command))
+          dispatch(sendCommandSuccess(commandType, aggregateId, aggregateName, payload))
         }
       } catch (error) {
         console.log(error)
         if (!unmounted) {
-          dispatch(sendCommandFailure({ ...command }, error))
+          dispatch(sendCommandFailure(commandType, aggregateId, aggregateName, payload, error))
         }
       }
     }
     doSendCommand()
-    return () => {}
+    return () => { }
   }, [command])
   return setCommand
 }

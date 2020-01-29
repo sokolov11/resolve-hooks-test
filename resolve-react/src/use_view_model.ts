@@ -3,6 +3,8 @@ import React, { useState, useEffect, useReducer, useContext } from 'react'
 import createApi from './create_api'
 import getOrigin from './get_origin'
 
+import { initSubscription, doSubscribe, doUnsubscribe } from './subscribe'
+
 import ResolveContext from './context'
 
 import {
@@ -44,7 +46,7 @@ const useViewModel = (
   if (!context) {
     throw Error('You cannot use resolve effects outside Resolve context')
   }
-  const { rootPath } = context
+  const { rootPath, subscribeAdapter } = context
   const origin = getOrigin()
   const api = createApi({ origin, rootPath })
 
@@ -91,7 +93,26 @@ const useViewModel = (
       }
     }
 
+    const doInitSubscription = async () => {
+      try {
+        await initSubscription({
+          api,
+          origin,
+          rootPath,
+          subscribeAdapter
+        })
+
+        await doSubscribe({ topicName: 'SHOPPING_ITEM_CREATED', topicId: aggregateIds[0] }) // TODO: read 'SHOPPING_LIST_ITEM_CREATED'
+        console.log('ok')
+      }
+      catch (error) {
+        console.log(error)
+      }
+    }
+
     doLoadViewModelState()
+    doInitSubscription()
+
     return () => {
       unmounted = true
       // TODO: dropViewModelState, disconnect...
