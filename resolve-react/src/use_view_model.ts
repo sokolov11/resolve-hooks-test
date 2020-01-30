@@ -54,6 +54,7 @@ const useViewModel = (
     data: inititalData
   })
   const [args, setArgs] = useState(aggregateArgs)
+  const viewModel = viewModels.find(({ name }) => name === viewModelName)
 
   useEffect(() => {
     let unmounted = false
@@ -71,7 +72,6 @@ const useViewModel = (
         })
 
         if (!unmounted) {
-          const viewModel = viewModels.find(({ name }) => name === viewModelName)
           if (viewModel) {
             dispatch(
               loadViewModelStateSuccess(
@@ -100,15 +100,13 @@ const useViewModel = (
       }
       try {
         // TODO: dispatch subscription started
-        await initSubscription(context,
-          {
-            origin,
-            rootPath,
-            subscribeAdapter
-          })
-
-        const viewModel = viewModels.find(({ name }) => name === viewModelName)
         if (viewModel) {
+          await initSubscription(context,
+            {
+              origin,
+              rootPath,
+              subscribeAdapter
+            })
           const eventTypes = Object.keys(viewModel.projection).filter(
             eventType => eventType !== 'Init'
           )
