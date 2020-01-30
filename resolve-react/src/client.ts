@@ -82,14 +82,14 @@ const request = async (context: Context, url: string, body: object): Promise<Res
   return response
 }
 
-interface Command {
+export interface Command {
   type: string
   aggregateId: string
   aggregateName: string
   payload?: object
 }
 
-const sendCommand = async (context: Context, command: Command): Promise<unknown> => {
+export const sendCommand = async (context: Context, command: Command): Promise<unknown> => {
   const response = await request(context, '/api/commands', command)
 
   try {
@@ -110,7 +110,7 @@ type ViewModelState = {
   result: string // TODO: rename
 }
 
-const loadViewModelState = async (
+export const loadViewModelState = async (
   context: Context,
   viewModelQuery: ViewModelQuery
 ): Promise<ViewModelState> => {
@@ -148,7 +148,7 @@ type ReadModelState = {
   result: string // TODO: rename
 }
 
-const loadReadModelState = async (
+export const loadReadModelState = async (
   context: Context,
   readModelQuery: ReadModelQuery
 ): Promise<ReadModelState> => {
@@ -176,7 +176,7 @@ const loadReadModelState = async (
   }
 }
 
-const getSubscribeAdapterOptions = async (context: Context, adapterName: string): Promise<object> => {
+export const getSubscribeAdapterOptions = async (context: Context, adapterName: string): Promise<object> => {
   const { origin, rootPath } = context
 
   const response = await request(context, '/api/subscribe', {
