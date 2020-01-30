@@ -1,27 +1,31 @@
-import createConnectionManager from './create_connection_manager'
-import createEmptySubscribeAdapter from './empty_subscribe_adapter'
+import createConnectionManager, { ConnectionManager } from './create_connection_manager'
+import createEmptySubscribeAdapter, { CreateSubscribeAdapter } from './empty_subscribe_adapter'
+import { getSubscribeAdapterOptions } from './client'
+import { Context } from './context'
 
-let connectionManager
+let connectionManager: ConnectionManager
 let subscribeAdapterPromise
 
-const initSubscribeAdapter = async ({
-  api,
+interface initSubscribeAdapterOptions {
+  origin: string
+  rootPath: string
+  subscribeAdapter: CreateSubscribeAdapter
+}
+
+const initSubscribeAdapter = async (context: Context, {
   origin,
   rootPath,
-  // store,
   subscribeAdapter: createSubscribeAdapter
-}) => {
+}: initSubscribeAdapterOptions): Promise<any> => {
   if (createSubscribeAdapter === createEmptySubscribeAdapter) {
     return createEmptySubscribeAdapter()
   }
 
-  const { appId, url } = await api.getSubscribeAdapterOptions(
-    createSubscribeAdapter.adapterName
-  )
+  const { appId, url } = await getSubscribeAdapterOptions(context, createSubscribeAdapter.adapterName)
 
   // const onEvent = event => store.dispatch(dispatchTopicMessage(event))
   const onEvent = event => {
-    console.log('--- topic event:', event)
+    console.log('topic event:', event)
     return event
   }
 
@@ -34,29 +38,18 @@ const initSubscribeAdapter = async ({
       url,
       onEvent
     })
-  
-    console.log({
-      appId,
-      origin,
-      rootPath,
-      url,
-      onEvent
-    })
-
     await subscribeAdapter.init()
   } catch (err) {
     console.log(err)
     throw err
   }
 
-  console.log('subscribeAdapter', subscribeAdapter)
   return subscribeAdapter
 }
 
-const initSubscription = async (options) => {
+const initSubscription = async (context: Context, options: initSubscribeAdapterOptions): Promise<any> => {
   connectionManager = createConnectionManager()
-  subscribeAdapterPromise = await initSubscribeAdapter(options)
-  console.log('subscription init done', subscribeAdapterPromise)
+  subscribeAdapterPromise = await initSubscribeAdapter(context, options)
 }
 
 const doSubscribe = async ({ topicName, topicId }) => {
@@ -68,7 +61,6 @@ const doSubscribe = async ({ topicName, topicId }) => {
     connectionName: topicName,
     connectionId: topicId
   })
-  console.log(addedConnections, removedConnections)
 
   try {
     await Promise.all([
@@ -89,6 +81,7 @@ const doSubscribe = async ({ topicName, topicId }) => {
         )
         : Promise.resolve()
     ])
+    return { topicName, topicId }
   } catch (error) {
     console.log('subscribe error', error)
     throw error
@@ -125,6 +118,7 @@ const doUnsubscribe = async ({ topicName, topicId }) => {
         )
         : Promise.resolve()
     ])
+    return { topicName, topicId }
   } catch (error) {
     console.log('unsubscribe error', error)
     throw (error)

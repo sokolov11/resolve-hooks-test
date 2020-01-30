@@ -1,4 +1,25 @@
-const getAddedConnections = (prevConnections, nextConnections) =>
+interface Connection {
+  connectionName: string
+  connectionId: string
+}
+
+interface ConnectionOperationResult {
+  addedConnections: Array<Connection>
+  removedConnections: Array<Connection>
+}
+
+interface Pool {
+  connections: object
+  wildcardSymbol: string
+}
+
+export interface ConnectionManager {
+  addConnection: (connection: Connection) => ConnectionOperationResult
+  removeConnection: (connection: Connection) => ConnectionOperationResult
+  getConnections: () => ConnectionOperationResult
+}
+
+const getAddedConnections = (prevConnections: Array<Connection>, nextConnections: Array<Connection>): Array<Connection> =>
   nextConnections.filter(
     connection =>
       !prevConnections.find(
@@ -8,7 +29,7 @@ const getAddedConnections = (prevConnections, nextConnections) =>
       )
   )
 
-const getRemovedConnections = (prevConnections, nextConnections) =>
+const getRemovedConnections = (prevConnections: Array<Connection>, nextConnections: Array<Connection>): Array<Connection> =>
   prevConnections.filter(
     connection =>
       !nextConnections.find(
@@ -18,10 +39,10 @@ const getRemovedConnections = (prevConnections, nextConnections) =>
       )
   )
 
-const getConnections = ({ connections, wildcardSymbol }) => {
+const getConnections = ({ connections, wildcardSymbol }): Array<Connection> => {
   const result = []
   for (const connectionName in connections) {
-    let connectionsByName: Array<object> = []
+    let connectionsByName: Array<Connection> = []
     for (const connectionId in connections[connectionName]) {
       if (connectionId === wildcardSymbol) {
         connectionsByName = [
@@ -43,7 +64,7 @@ const getConnections = ({ connections, wildcardSymbol }) => {
   return result
 }
 
-const addConnection = (pool, { connectionName, connectionId }) => {
+const addConnection = (pool: Pool, { connectionName, connectionId }: Connection): ConnectionOperationResult => {
   const prevConnections = getConnections(pool)
 
   if (!pool.connections[connectionName]) {
@@ -65,7 +86,7 @@ const addConnection = (pool, { connectionName, connectionId }) => {
   return { addedConnections, removedConnections }
 }
 
-const removeConnection = (pool, { connectionName, connectionId }) => {
+const removeConnection = (pool: Pool, { connectionName, connectionId }: Connection): ConnectionOperationResult => {
   const prevConnections = getConnections(pool)
 
   pool.connections[connectionName][connectionId]--
@@ -89,7 +110,7 @@ const removeConnection = (pool, { connectionName, connectionId }) => {
   return { addedConnections, removedConnections }
 }
 
-const createConnectionManager = ({ wildcardSymbol = '*' } = {}) => {
+const createConnectionManager = ({ wildcardSymbol = '*' } = {}): ConnectionManager => {
   const pool = {
     connections: Object.create(null),
     wildcardSymbol

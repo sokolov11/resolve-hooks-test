@@ -1,7 +1,12 @@
+export interface ViewModel {
+  name: string
+  projection: Array<object>
+}
+
 export interface ViewModelState {
-  data: object,
-  isLoading: boolean,
-  isError: Error | null
+  data: object
+  isLoading: boolean
+  isError?: Error
 }
 
 export enum LoadViewModelState {
@@ -11,9 +16,9 @@ export enum LoadViewModelState {
 }
 
 export interface LoadViewModelStateRequest {
-  type: string,
-  viewModelName: string,
-  aggregateIds: Array<string>,
+  type: string
+  viewModelName: string
+  aggregateIds: Array<string>
   aggregateArgs: object
 }
 
@@ -29,11 +34,11 @@ export const loadViewModelStateRequest = (
 })
 
 export interface LoadViewModelStateSuccess {
-  type: string,
-  viewModelName: string,
-  aggregateIds: Array<string>,
-  aggregateArgs: object,
-  result: object,
+  type: string
+  viewModelName: string
+  aggregateIds: Array<string>
+  aggregateArgs: object
+  result: object
   timestamp: number
 }
 
@@ -53,10 +58,10 @@ export const loadViewModelStateSuccess = (
 })
 
 export interface LoadViewModelStateFailure {
-  type: string,
-  viewModelName: string,
-  aggregateIds: Array<string>,
-  aggregateArgs: object,
+  type: string
+  viewModelName: string
+  aggregateIds: Array<string>
+  aggregateArgs: object
   error: Error
 }
 

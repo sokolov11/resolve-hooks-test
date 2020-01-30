@@ -5,7 +5,9 @@ import getOrigin from './get_origin'
 
 import { initSubscription, doSubscribe, doUnsubscribe } from './subscribe'
 
-import ResolveContext from './context'
+import { ResolveContext, Context } from './context'
+
+import { loadViewModelState } from './client'
 
 import {
   loadViewModelStateFailure,
@@ -46,9 +48,8 @@ const useViewModel = (
   if (!context) {
     throw Error('You cannot use resolve effects outside Resolve context')
   }
-  const { rootPath, subscribeAdapter } = context
+  const { rootPath, subscribeAdapter, viewModels } = context
   const origin = getOrigin()
-  const api = createApi({ origin, rootPath })
 
   const [state, dispatch] = useReducer(loadReducer, {
     isLoading: false,
@@ -66,7 +67,7 @@ const useViewModel = (
       )
       try {
         console.log('requesting viewModel', viewModelName)
-        const data = await api.loadViewModelState({
+        const data = await loadViewModelState(context, {
           viewModelName,
           aggregateIds,
           aggregateArgs
@@ -94,19 +95,42 @@ const useViewModel = (
     }
 
     const doInitSubscription = async () => {
+      if(!subscribeAdapter) {
+        return
+      }
       try {
-        await initSubscription({
-          api,
-          origin,
-          rootPath,
-          subscribeAdapter
-        })
+        // TODO: dispatch subscription started
+        await initSubscription(context,
+          {
+            origin,
+            rootPath,
+            subscribeAdapter
+          })
 
-        await doSubscribe({ topicName: 'SHOPPING_ITEM_CREATED', topicId: aggregateIds[0] }) // TODO: read 'SHOPPING_LIST_ITEM_CREATED'
-        console.log('ok')
+        const viewModel = viewModels.find(({ name }) => name === viewModelName)
+        if (viewModel) {
+          const eventTypes = Object.keys(viewModel.projection).filter(
+            eventType => eventType !== 'Init'
+          )
+          let subscriptionKeys = eventTypes.reduce((acc: Array<{ aggregateId: string, eventType: string }>, eventType) => {
+            if (Array.isArray(aggregateIds)) {
+              acc.push(...aggregateIds.map(aggregateId => ({ aggregateId, eventType })))
+            } else if (aggregateIds === '*') {
+              acc.push({ aggregateId: '*', eventType })
+            }
+            return acc
+          }, [])
+          console.log('subscriptionKeys:', subscriptionKeys)
+          for (const { aggregateId, eventType } of subscriptionKeys) {
+            await doSubscribe({ topicName: eventType, topicId: aggregateId })
+          }
+        }
+
+        // TODO: dispatch subscription succeed
       }
       catch (error) {
         console.log(error)
+        // TODO: dispatch subscription failed
       }
     }
 
