@@ -71,15 +71,18 @@ const useViewModel = (
         })
 
         if (!unmounted) {
-          dispatch(
-            loadViewModelStateSuccess(
-              viewModelName,
-              aggregateIds,
-              args,
-              data.result,
-              new Date().getTime()
+          const viewModel = viewModels.find(({ name }) => name === viewModelName)
+          if (viewModel) {
+            dispatch(
+              loadViewModelStateSuccess(
+                viewModelName,
+                aggregateIds,
+                args,
+                viewModel.deserializeState(data.result),
+                new Date().getTime()
+              )
             )
-          )
+          }
         }
       } catch (error) {
         console.log(error)
@@ -92,7 +95,7 @@ const useViewModel = (
     }
 
     const doInitSubscription = async () => {
-      if(!subscribeAdapter) {
+      if (!subscribeAdapter) {
         return
       }
       try {
