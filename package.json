@@ -22,7 +22,7 @@
     "react-helmet": "5.2.0",
     "redux": "4.0.1",
     "redux-devtools-extension": "2.13.7",
-    "resolve-react-hooks": "file:./resolve-react",
+    "resolve-react-hooks": "0.0.1",
     "resolve-readmodel-lite": "0.21.13",
     "resolve-readmodel-mysql": "0.21.13",
     "resolve-redux": "0.21.13",

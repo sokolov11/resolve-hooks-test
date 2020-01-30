@@ -17,6 +17,7 @@ env:
   jest: true
 globals:
   fetch: false
+  document: false
 rules:
   import/extensions: ['error', 'ignorePackages', {
       "js": "never",
