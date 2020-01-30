@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useReducer, useContext } from 'react'
 
-import createApi from './create_api'
 import getOrigin from './get_origin'
 
 import { initSubscription, doSubscribe, doUnsubscribe } from './subscribe'
@@ -21,13 +20,12 @@ import {
 const loadReducer = (state: ViewModelState, action: any): ViewModelState => {
   switch (action.type) {
     case LoadViewModelState.REQUEST:
-      return { ...state, isLoading: true, isError: null }
+      return { ...state, isLoading: true }
     case LoadViewModelState.SUCCESS:
       return {
         ...state,
         data: action.result,
-        isLoading: false,
-        isError: null
+        isLoading: false
       }
     case LoadViewModelState.FAILURE:
       return { ...state, isLoading: false, isError: action.error }
@@ -53,7 +51,6 @@ const useViewModel = (
 
   const [state, dispatch] = useReducer(loadReducer, {
     isLoading: false,
-    isError: null,
     data: inititalData
   })
   const [args, setArgs] = useState(aggregateArgs)

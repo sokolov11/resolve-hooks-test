@@ -178,7 +178,12 @@ export const loadReadModelState = async (
   }
 }
 
-export const getSubscribeAdapterOptions = async (context: Context, adapterName: string): Promise<object> => {
+export interface SubscribeAdapterOptions {
+  appId: string
+  url: string
+}
+
+export const getSubscribeAdapterOptions = async (context: Context, adapterName: string): Promise<SubscribeAdapterOptions> => {
   const { origin, rootPath } = context
 
   const response = await request(context, '/api/subscribe', {
