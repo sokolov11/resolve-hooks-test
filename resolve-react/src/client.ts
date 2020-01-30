@@ -89,7 +89,9 @@ export interface Command {
   payload?: object
 }
 
-export const sendCommand = async (context: Context, command: Command): Promise<unknown> => {
+export type CommandResult = unknown
+
+export const sendCommand = async (context: Context, command: Command): Promise<CommandResult> => {
   const response = await request(context, '/api/commands', command)
 
   try {
