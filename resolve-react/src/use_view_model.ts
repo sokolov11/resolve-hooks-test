@@ -12,7 +12,6 @@ import {
   loadViewModelStateFailure,
   loadViewModelStateSuccess,
   loadViewModelStateRequest,
-
   ViewModelState,
   LoadViewModelState
 } from './view_model_types'
@@ -41,8 +40,6 @@ const useViewModel = (
   inititalData: object
 ): Array<any> => {
   const context = useContext(ResolveContext)
-  console.log(context)
-
   if (!context) {
     throw Error('You cannot use resolve effects outside Resolve context')
   }
@@ -59,10 +56,8 @@ const useViewModel = (
   useEffect(() => {
     let unmounted = false
 
-    const doLoadViewModelState = async () => {
-      dispatch(
-        loadViewModelStateRequest(viewModelName, aggregateIds, aggregateArgs)
-      )
+    const doLoadViewModelState = async (): Promise<any> => {
+      dispatch(loadViewModelStateRequest(viewModelName, aggregateIds, aggregateArgs))
       try {
         console.log('requesting viewModel', viewModelName)
         const data = await loadViewModelState(context, {
@@ -87,37 +82,35 @@ const useViewModel = (
       } catch (error) {
         console.log(error)
         if (!unmounted) {
-          dispatch(
-            loadViewModelStateFailure(viewModelName, aggregateIds, args, error)
-          )
+          dispatch(loadViewModelStateFailure(viewModelName, aggregateIds, args, error))
         }
       }
     }
 
-    const doInitSubscription = async () => {
+    const doInitSubscription = async (): Promise<any> => {
       if (!subscribeAdapter) {
         return
       }
       try {
         // TODO: dispatch subscription started
         if (viewModel) {
-          await initSubscription(context,
-            {
-              origin,
-              rootPath,
-              subscribeAdapter
-            })
-          const eventTypes = Object.keys(viewModel.projection).filter(
-            eventType => eventType !== 'Init'
+          await initSubscription(context, {
+            origin,
+            rootPath,
+            subscribeAdapter
+          })
+          const eventTypes = Object.keys(viewModel.projection).filter(eventType => eventType !== 'Init')
+          const subscriptionKeys = eventTypes.reduce(
+            (acc: Array<{ aggregateId: string, eventType: string }>, eventType) => {
+              if (Array.isArray(aggregateIds)) {
+                acc.push(...aggregateIds.map(aggregateId => ({ aggregateId, eventType })))
+              } else if (aggregateIds === '*') {
+                acc.push({ aggregateId: '*', eventType })
+              }
+              return acc
+            },
+            []
           )
-          let subscriptionKeys = eventTypes.reduce((acc: Array<{ aggregateId: string, eventType: string }>, eventType) => {
-            if (Array.isArray(aggregateIds)) {
-              acc.push(...aggregateIds.map(aggregateId => ({ aggregateId, eventType })))
-            } else if (aggregateIds === '*') {
-              acc.push({ aggregateId: '*', eventType })
-            }
-            return acc
-          }, [])
           console.log('subscriptionKeys:', subscriptionKeys)
           for (const { aggregateId, eventType } of subscriptionKeys) {
             await doSubscribe({ topicName: eventType, topicId: aggregateId })
@@ -125,8 +118,7 @@ const useViewModel = (
         }
 
         // TODO: dispatch subscription succeed
-      }
-      catch (error) {
+      } catch (error) {
         console.log(error)
         // TODO: dispatch subscription failed
       }
@@ -135,7 +127,7 @@ const useViewModel = (
     doLoadViewModelState()
     doInitSubscription()
 
-    return () => {
+    return (): any => {
       unmounted = true
       // TODO: dropViewModelState, disconnect...
     }

@@ -6,17 +6,16 @@ import { Context } from './context'
 let connectionManager: ConnectionManager
 let subscribeAdapterPromise
 
-interface initSubscribeAdapterOptions {
+interface InitSubscribeAdapterOptions {
   origin: string
   rootPath: string
   subscribeAdapter: CreateSubscribeAdapter
 }
 
-const initSubscribeAdapter = async (context: Context, {
-  origin,
-  rootPath,
-  subscribeAdapter: createSubscribeAdapter
-}: initSubscribeAdapterOptions): Promise<any> => {
+const initSubscribeAdapter = async (
+  context: Context,
+  { origin, rootPath, subscribeAdapter: createSubscribeAdapter }: InitSubscribeAdapterOptions
+): Promise<any> => {
   if (createSubscribeAdapter === createEmptySubscribeAdapter) {
     return createEmptySubscribeAdapter()
   }
@@ -47,17 +46,14 @@ const initSubscribeAdapter = async (context: Context, {
   return subscribeAdapter
 }
 
-const initSubscription = async (context: Context, options: initSubscribeAdapterOptions): Promise<any> => {
+const initSubscription = async (context: Context, options: InitSubscribeAdapterOptions): Promise<any> => {
   connectionManager = createConnectionManager()
   subscribeAdapterPromise = await initSubscribeAdapter(context, options)
 }
 
-const doSubscribe = async ({ topicName, topicId }) => {
+const doSubscribe = async ({ topicName, topicId }): Promise<object> => {
   const subscribeAdapter = subscribeAdapterPromise
-  const {
-    addedConnections,
-    removedConnections
-  } = connectionManager.addConnection({
+  const { addedConnections, removedConnections } = connectionManager.addConnection({
     connectionName: topicName,
     connectionId: topicId
   })
@@ -81,6 +77,7 @@ const doSubscribe = async ({ topicName, topicId }) => {
         )
         : Promise.resolve()
     ])
+    console.log('subscription done', { topicName, topicId })
     return { topicName, topicId }
   } catch (error) {
     console.log('subscribe error', error)
@@ -88,13 +85,10 @@ const doSubscribe = async ({ topicName, topicId }) => {
   }
 }
 
-const doUnsubscribe = async ({ topicName, topicId }) => {
+const doUnsubscribe = async ({ topicName, topicId }): Promise<object> => {
   const subscribeAdapter = subscribeAdapterPromise
 
-  const {
-    addedConnections,
-    removedConnections
-  } = connectionManager.removeConnection({
+  const { addedConnections, removedConnections } = connectionManager.removeConnection({
     connectionName: topicName,
     connectionId: topicId
   })
@@ -121,12 +115,8 @@ const doUnsubscribe = async ({ topicName, topicId }) => {
     return { topicName, topicId }
   } catch (error) {
     console.log('unsubscribe error', error)
-    throw (error)
+    throw error
   }
 }
 
-export {
-  initSubscription,
-  doSubscribe,
-  doUnsubscribe
-}
+export { initSubscription, doSubscribe, doUnsubscribe }

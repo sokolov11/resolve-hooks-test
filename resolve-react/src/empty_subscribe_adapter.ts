@@ -17,7 +17,7 @@ const emptySubscribeAdapter = (): SubscribeAdapter => ({
   async subscribeToTopics() { },
   async unsubscribeFromTopics() { },
   async close() { },
-  isConnected: () => true,
+  isConnected: () => true
 })
 
 emptySubscribeAdapter.adapterName = 'empty'

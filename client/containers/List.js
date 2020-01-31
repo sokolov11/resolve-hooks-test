@@ -25,7 +25,7 @@ function List() {
         <div>Error</div>
       ) : (
         <code>
-          <pre style={{ whiteSpace: 'pre-wrap' }}>{data}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(data)}</pre>
         </code>
       )}
       <button
