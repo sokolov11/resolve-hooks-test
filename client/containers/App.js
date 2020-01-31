@@ -3,6 +3,7 @@ import { Navbar, Image } from 'react-bootstrap'
 import { Helmet } from 'react-helmet'
 
 import List from './List'
+import Entry from './Entry'
 
 const App = ({ staticPath }) => {
   const stylesheetLink = {
@@ -26,6 +27,7 @@ const App = ({ staticPath }) => {
       <div>
         <Helmet title="reSolve Hello World" link={links} meta={[meta]} />
       </div>
+      <Entry />
       <List />
     </div>
   )
