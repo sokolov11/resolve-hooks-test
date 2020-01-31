@@ -2,12 +2,13 @@ import { useContext, useCallback } from 'react'
 import { ResolveContext } from './context'
 import { Command, CommandResult, sendCommand } from './client'
 
-type CommandBuilder = (args: any[]) => Command
+type CommandBuilder<TData> = (data: TData) => Command
 type CommandSuccessCallback = (result: CommandResult) => void
 type CommandFailureCallback = (error: Error) => void
 type CommandRequestCallback = (command: Command) => void
+type CommandExecutor<TData> = (data: TData) => void
 
-const isCommandBuilder = (x: any): x is CommandBuilder => {
+function isCommandBuilder<T>(x: any): x is CommandBuilder<T> {
   return x !== null && x !== undefined && typeof x === 'function'
 }
 const isCommandSuccessCallback = (x: any): x is CommandSuccessCallback => {
@@ -20,36 +21,50 @@ const isCommandRequestCallback = (x: any): x is CommandRequestCallback => {
   return x !== null && x !== undefined && typeof x === 'function'
 }
 
-const useCommand = (
-  input: Command | CommandBuilder,
+function useCommand(
+  input: Command,
   success?: CommandSuccessCallback,
   failure?: CommandFailureCallback,
   request?: CommandRequestCallback
-) => {
+): CommandExecutor<never>
+
+function useCommand<T>(
+  input: CommandBuilder<T>,
+  success?: CommandSuccessCallback,
+  failure?: CommandFailureCallback,
+  request?: CommandRequestCallback
+): CommandExecutor<T>
+
+function useCommand<T>(
+  input: Command | CommandBuilder<T>,
+  success?: CommandSuccessCallback,
+  failure?: CommandFailureCallback,
+  request?: CommandRequestCallback
+): CommandExecutor<T> {
   const context = useContext(ResolveContext)
 
-  return useCallback(
-    async (...args) => {
-      const command = isCommandBuilder(input) ? input(args) : input
+  // return useCallback(
+  return (data: T): void => {
+    const command = isCommandBuilder<T>(input) ? input(data) : input
 
-      try {
-        if (isCommandRequestCallback(request)) {
-          request(command)
-        }
+    try {
+      if (isCommandRequestCallback(request)) {
+        request(command)
+      }
 
-        const result = await sendCommand(context, command)
-
+      sendCommand(context, command).then(result => {
         if (isCommandSuccessCallback(success)) {
           success(result)
         }
-      } catch (error) {
-        if (isCommandFailureCallback(failure)) {
-          failure(error)
-        }
+      })
+    } catch (error) {
+      if (isCommandFailureCallback(failure)) {
+        failure(error)
       }
-    },
-    [context, input, success, failure, request]
-  )
+    }
+  }
+  // [context, input, success, failure, request]
+  // )
 }
 
 export { useCommand }

@@ -82,7 +82,7 @@ const request = async (context: Context, url: string, body: object): Promise<Res
   return response
 }
 
-export interface Command {
+export type Command = {
   type: string
   aggregateId: string
   aggregateName: string
