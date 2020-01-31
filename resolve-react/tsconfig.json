@@ -15,6 +15,7 @@
     "moduleResolution": "node",
     "removeComments": false,
     "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
     "types": ["node", "jest"]
   },
   "exclude": [
