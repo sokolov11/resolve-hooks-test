@@ -5,6 +5,7 @@
     "lib": ["es2018","dom"],
     "rootDir": "src",
     "outDir": "lib",
+    "declarationDir": "typings",
     "strict": false,
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
@@ -20,6 +21,8 @@
   },
   "exclude": [
     "node_modules",
-    "lib"
+    "lib",
+    "typings",
+    "src/__tests__"
   ]
 }

@@ -2,16 +2,47 @@ kind: pipeline
 type: docker
 name: publishing
 steps:
-  - name: installing-packages
-    image: node:10.16.1-slim
+  - name: install
+    image: reimagined/resolve-docker
+    pull: always
     commands:
       - cd resolve-react
       - yarn
 
-  - name: testing
-    image: node:10.16.1-slim
+  - name: test
+    image: reimagined/resolve-docker
+    pull: always
     depends_on:
-      - installing-packages
+      - install
     commands:
       - cd resolve-react
       - yarn test
+
+  - name: compile
+    image: reimagined/resolve-docker
+    depends_on:
+      - test
+    commands:
+      - cd resolve-react
+      - yarn build
+      - rm -rf ./src
+
+  - name: publish
+    image: reimagined/resolve-docker
+    pull: always
+    environment:
+      NPM_REGISTRY:
+        from_secret: npm_registry
+      NPM_TOKEN:
+        from_secret: npm_token
+    commands:
+      - cd resolve-react
+      - VERSION=$(/scripts/prepare_downstream)
+      - /scripts/npm_patch_rc
+      - /scripts/npm_publish $VERSION latest
+
+trigger:
+  branch:
+    - master
+  event:
+    - push
