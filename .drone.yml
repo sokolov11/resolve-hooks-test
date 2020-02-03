@@ -5,6 +5,7 @@ steps:
   - name: installing-packages
     image: node:10.16.1-slim
     commands:
+      - yarn
       - cd resolve-react
       - yarn
 
