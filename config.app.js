@@ -4,12 +4,12 @@ const appConfig = {
       name: 'ShoppingList',
       commands: 'common/aggregates/shopping_list.commands.js',
       projection: 'common/aggregates/shopping_list.projection.js'
+    },
+    {
+      name: 'comment',
+      commands: 'common/aggregates/comment.commands.js',
+      projection: 'common/aggregates/comment.projection.js'
     }
-    /* {
-      name: 'aggregate-name',
-      commands: 'common/aggregates/aggregate-name.commands.js',
-      projection: 'common/aggregates/aggregate-name.projection.js'
-    } */
   ],
   readModels: [
     {

@@ -1,0 +1,17 @@
+kind: pipeline
+type: docker
+name: publishing
+steps:
+  - name: installing-packages
+    image: node:10.16.1-slim
+    commands:
+      - cd resolve-react
+      - yarn
+
+  - name: testing
+    image: node:10.16.1-slim
+    depends_on:
+      - installing-packages
+    commands:
+      - cd resolve-react
+      - yarn test

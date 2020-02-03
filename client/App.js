@@ -3,7 +3,7 @@ import { Navbar, Image } from 'react-bootstrap'
 import { Helmet } from 'react-helmet'
 
 import List from './List'
-import Entry from './Entry'
+import CommentTree from './comments/CommentTree'
 
 const App = ({ staticPath }) => {
   const stylesheetLink = {
@@ -25,10 +25,9 @@ const App = ({ staticPath }) => {
   return (
     <div>
       <div>
-        <Helmet title="reSolve Hello World" link={links} meta={[meta]} />
+        <Helmet title="ReSolve Hooks Example" link={links} meta={[meta]} />
       </div>
-      <Entry />
-      <List />
+      <CommentTree />
     </div>
   )
 }
