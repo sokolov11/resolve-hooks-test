@@ -1,0 +1,9 @@
+kind: pipeline
+type: docker
+name: publishing
+steps:
+  - name: install-packages
+    image: node:10.16.1-slim
+    commands:
+      - yarn
+
