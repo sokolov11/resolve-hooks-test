@@ -13,10 +13,10 @@ export interface CreateSubscribeAdapter {
 }
 
 const emptySubscribeAdapter = (): SubscribeAdapter => ({
-  async init() { },
-  async subscribeToTopics() { },
-  async unsubscribeFromTopics() { },
-  async close() { },
+  async init() {},
+  async subscribeToTopics() {},
+  async unsubscribeFromTopics() {},
+  async close() {},
   isConnected: () => true
 })
 
