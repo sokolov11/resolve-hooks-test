@@ -16,7 +16,6 @@ steps:
       - install
     commands:
       - cd resolve-react
-      - yarn test
 
   - name: compile
     image: reimagined/resolve-docker
