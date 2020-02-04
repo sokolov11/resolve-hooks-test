@@ -30,6 +30,8 @@ steps:
   - name: publish
     image: reimagined/resolve-docker
     pull: always
+    depends_on:
+      - compile
     environment:
       NPM_REGISTRY:
         from_secret: npm_registry
