@@ -1,10 +1,7 @@
-import createConnectionManager, { ConnectionManager } from './create_connection_manager'
+import createConnectionManager from './create_connection_manager'
 import createEmptySubscribeAdapter, { CreateSubscribeAdapter } from './empty_subscribe_adapter'
 import { getSubscribeAdapterOptions } from './client'
 import { Context } from './context'
-
-let connectionManager: ConnectionManager
-let subscribeAdapterPromise
 
 interface InitSubscribeAdapterOptions {
   origin: string
@@ -46,13 +43,35 @@ const initSubscribeAdapter = async (
   return subscribeAdapter
 }
 
-const initSubscription = async (context: Context, options: InitSubscribeAdapterOptions): Promise<any> => {
-  connectionManager = createConnectionManager()
+let subscribeAdapterPromise = null
+
+const getSubscribeAdapterPromise = async (
+  context: Context,
+  options: InitSubscribeAdapterOptions
+): Promise<any> => {
+  if (subscribeAdapterPromise !== null) {
+    return subscribeAdapterPromise
+  }
   subscribeAdapterPromise = await initSubscribeAdapter(context, options)
+  return subscribeAdapterPromise
 }
 
-const doSubscribe = async ({ topicName, topicId }): Promise<object> => {
-  const subscribeAdapter = subscribeAdapterPromise
+export const dropSubscribeAdapterPromise = () => {
+  subscribeAdapterPromise = null
+  const connectionManager = createConnectionManager()
+  connectionManager.destroy()
+}
+
+const doSubscribe = async (
+  context: Context,
+  options: InitSubscribeAdapterOptions,
+  { topicName, topicId }
+): Promise<object> => {
+  const connectionManager = createConnectionManager()
+  const subscribeAdapter = await getSubscribeAdapterPromise(context, options)
+  if (subscribeAdapter === null) {
+    return Promise.resolve({})
+  }
   const { addedConnections, removedConnections } = connectionManager.addConnection({
     connectionName: topicName,
     connectionId: topicId
@@ -77,7 +96,7 @@ const doSubscribe = async ({ topicName, topicId }): Promise<object> => {
         )
         : Promise.resolve()
     ])
-    console.log('subscription done', { topicName, topicId })
+    // console.log('subscription done', { topicName, topicId })
     return { topicName, topicId }
   } catch (error) {
     console.log('subscribe error', error)
@@ -85,8 +104,16 @@ const doSubscribe = async ({ topicName, topicId }): Promise<object> => {
   }
 }
 
-const doUnsubscribe = async ({ topicName, topicId }): Promise<object> => {
-  const subscribeAdapter = subscribeAdapterPromise
+const doUnsubscribe = async (
+  context: Context,
+  options: InitSubscribeAdapterOptions,
+  { topicName, topicId }
+): Promise<object> => {
+  const connectionManager = createConnectionManager()
+  const subscribeAdapter = await getSubscribeAdapterPromise(context, options)
+  if (subscribeAdapter === null) {
+    return Promise.resolve({})
+  }
 
   const { addedConnections, removedConnections } = connectionManager.removeConnection({
     connectionName: topicName,
@@ -119,4 +146,4 @@ const doUnsubscribe = async ({ topicName, topicId }): Promise<object> => {
   }
 }
 
-export { initSubscription, doSubscribe, doUnsubscribe }
+export { doSubscribe, doUnsubscribe }

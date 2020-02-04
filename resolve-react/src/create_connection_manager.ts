@@ -108,7 +108,7 @@ const removeConnection = (
   return { addedConnections, removedConnections }
 }
 
-class ConnectionManager {
+export class ConnectionManager {
   private static instance: ConnectionManager
   private wildcardSymbol: string
   private pool
