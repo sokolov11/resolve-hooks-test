@@ -2,7 +2,7 @@
   "name": "resolve-react-hooks",
   "version": "1.0.0",
   "main": "./lib/index.js",
-  "typings": "./lib/index.d.ts",
+  "typings": "./typings/index.d.ts",
   "scripts": {
     "build": "tsc --declaration",
     "test": "jest"
