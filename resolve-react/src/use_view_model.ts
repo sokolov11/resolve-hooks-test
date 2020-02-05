@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useReducer, useContext } from 'react'
 
-import getOrigin from './get_origin'
-
-import { initSubscription, doSubscribe, doUnsubscribe } from './subscribe'
+import { doSubscribe, doUnsubscribe } from './subscribe'
 
 import { ResolveContext, Context } from './context'
 
@@ -33,18 +31,24 @@ const loadReducer = (state: ViewModelState, action: any): ViewModelState => {
   }
 }
 
+interface Callbacks {
+  onEvent(event: any): any
+  onStateChange(state: any): any
+}
+
 const useViewModel = (
   viewModelName: string,
   aggregateIds: Array<string>,
   aggregateArgs: object,
-  inititalData: object
+  inititalData: object,
+  callbacks: Callbacks
 ): Array<any> => {
   const context = useContext(ResolveContext)
   if (!context) {
     throw Error('You cannot use resolve effects outside Resolve context')
   }
-  const { rootPath, subscribeAdapter, viewModels } = context
-  const origin = getOrigin()
+  const { subscribeAdapter, viewModels } = context
+  const { onEvent, onStateChange } = callbacks
 
   const [state, dispatch] = useReducer(loadReducer, {
     isLoading: false,
@@ -94,11 +98,6 @@ const useViewModel = (
       try {
         // TODO: dispatch subscription started
         if (viewModel) {
-          await initSubscription(context, {
-            origin,
-            rootPath,
-            subscribeAdapter
-          })
           const eventTypes = Object.keys(viewModel.projection).filter(eventType => eventType !== 'Init')
           const subscriptionKeys = eventTypes.reduce(
             (acc: Array<{ aggregateId: string, eventType: string }>, eventType) => {
@@ -111,9 +110,17 @@ const useViewModel = (
             },
             []
           )
-          console.log('subscriptionKeys:', subscriptionKeys)
+          // console.log('subscriptionKeys:', subscriptionKeys)
           for (const { aggregateId, eventType } of subscriptionKeys) {
-            await doSubscribe({ topicName: eventType, topicId: aggregateId })
+            await doSubscribe(
+              context,
+              subscribeAdapter,
+              {
+                topicName: eventType,
+                topicId: aggregateId
+              },
+              onEvent
+            )
           }
         }
 

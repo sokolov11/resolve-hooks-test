@@ -10,7 +10,6 @@ jest.mock('../empty_subscribe_adapter')
 const mockedGetSubscribeAdapterOptions = mocked(getSubscribeAdapterOptions)
 
 let context
-let options
 let mockSubscribeAdapter
 
 mockedGetSubscribeAdapterOptions.mockResolvedValue({
@@ -21,6 +20,7 @@ mockedGetSubscribeAdapterOptions.mockResolvedValue({
 const mockInit = jest.fn()
 const mockSubscribe = jest.fn()
 const mockUnsubscribe = jest.fn()
+const mockCallback = jest.fn()
 
 const clearMocks = (): void => {
   mockedGetSubscribeAdapterOptions.mockClear()
@@ -29,6 +29,7 @@ const clearMocks = (): void => {
   mockSubscribe.mockClear()
   mockUnsubscribe.mockClear()
   dropSubscribeAdapterPromise()
+  mockCallback.mockClear()
 }
 
 describe('subscribe', () => {
@@ -39,11 +40,9 @@ describe('subscribe', () => {
       unsubscribeFromTopics: mockUnsubscribe
     })
 
-    context = jest.fn()
-    options = {
+    context = {
       origin: 'http://origin-url',
-      rootPath: '',
-      subscribeAdapter: mockSubscribeAdapter
+      rootPath: ''
     }
   })
 
@@ -52,14 +51,19 @@ describe('subscribe', () => {
   })
 
   test('init with params', async () => {
-    await doSubscribe(context, options, {
-      topicName: 'event-type-1',
-      topicId: 'aggregate-id-1'
-    })
+    await doSubscribe(
+      context,
+      mockSubscribeAdapter,
+      {
+        topicName: 'event-type-1',
+        topicId: 'aggregate-id-1'
+      },
+      mockCallback
+    )
 
     expect(mockSubscribeAdapter).toBeCalledWith({
       appId: 'application-id',
-      onEvent: expect.any(Function),
+      onEvent: mockCallback,
       origin: 'http://origin-url',
       rootPath: '',
       url: 'htttp://options-url'
@@ -69,22 +73,22 @@ describe('subscribe', () => {
   })
 
   test('init only once with params', async () => {
-    await doSubscribe(context, options, {
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-1',
       topicId: 'aggregate-id-1'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-2',
       topicId: 'aggregate-id-2'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-3',
       topicId: 'aggregate-id-3'
-    })
+    }, mockCallback)
 
     expect(mockSubscribeAdapter).toBeCalledWith({
       appId: 'application-id',
-      onEvent: expect.any(Function),
+      onEvent: mockCallback,
       origin: 'http://origin-url',
       rootPath: '',
       url: 'htttp://options-url'
@@ -93,64 +97,64 @@ describe('subscribe', () => {
   })
 
   test('is subscribed', async () => {
-    await doSubscribe(context, options, {
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-1',
       topicId: 'aggregate-id-1'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-2',
       topicId: 'aggregate-id-2'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-3',
       topicId: 'aggregate-id-3'
-    })
+    }, mockCallback)
     expect(mockSubscribe).toBeCalledTimes(3)
   })
 
   test('is unsubscribed', async () => {
-    await doSubscribe(context, options, {
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-1',
       topicId: 'aggregate-id-1'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-2',
       topicId: 'aggregate-id-2'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-3',
       topicId: 'aggregate-id-3'
-    })
+    }, mockCallback)
 
-    await doUnsubscribe(context, options, {
+    await doUnsubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-1',
       topicId: 'aggregate-id-1'
-    })
-    await doUnsubscribe(context, options, {
+    }, mockCallback)
+    await doUnsubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-2',
       topicId: 'aggregate-id-2'
-    })
-    await doUnsubscribe(context, options, {
+    }, mockCallback)
+    await doUnsubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-3',
       topicId: 'aggregate-id-3'
-    })
+    }, mockCallback)
     expect(mockSubscribe).toBeCalledTimes(3)
     expect(mockUnsubscribe).toBeCalledTimes(3)
   })
 
   test('no multiple subscriptions', async () => {
-    await doSubscribe(context, options, {
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-1',
       topicId: 'aggregate-id-1'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-1',
       topicId: 'aggregate-id-1'
-    })
-    await doSubscribe(context, options, {
+    }, mockCallback)
+    await doSubscribe(context, mockSubscribeAdapter, {
       topicName: 'event-type-1',
       topicId: 'aggregate-id-1'
-    })
+    }, mockCallback)
     expect(mockSubscribe).toBeCalledTimes(1)
   })
 })
