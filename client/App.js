@@ -2,7 +2,7 @@ import React from 'react'
 import { Navbar, Image } from 'react-bootstrap'
 import { Helmet } from 'react-helmet'
 
-import List from './List'
+import List from './containers/List'
 import CommentTree from './comments/CommentTree'
 
 const App = ({ staticPath }) => {
@@ -27,7 +27,7 @@ const App = ({ staticPath }) => {
       <div>
         <Helmet title="ReSolve Hooks Example" link={links} meta={[meta]} />
       </div>
-      <CommentTree />
+      <List />
     </div>
   )
 }

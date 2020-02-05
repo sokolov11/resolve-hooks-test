@@ -32,8 +32,8 @@ const loadReducer = (state: ViewModelState, action: any): ViewModelState => {
 }
 
 interface Callbacks {
-  onEvent(event: any): any
-  onStateChange(state: any): any
+  onEvent?: Function
+  onStateChange?: Function
 }
 
 const useViewModel = (
@@ -41,7 +41,7 @@ const useViewModel = (
   aggregateIds: Array<string>,
   aggregateArgs: object,
   inititalData: object,
-  callbacks: Callbacks
+  callbacks: Callbacks = {}
 ): Array<any> => {
   const context = useContext(ResolveContext)
   if (!context) {
@@ -63,7 +63,6 @@ const useViewModel = (
     const doLoadViewModelState = async (): Promise<any> => {
       dispatch(loadViewModelStateRequest(viewModelName, aggregateIds, aggregateArgs))
       try {
-        console.log('requesting viewModel', viewModelName)
         const data = await loadViewModelState(context, {
           viewModelName,
           aggregateIds,
@@ -110,7 +109,6 @@ const useViewModel = (
             },
             []
           )
-          // console.log('subscriptionKeys:', subscriptionKeys)
           for (const { aggregateId, eventType } of subscriptionKeys) {
             await doSubscribe(
               context,
@@ -140,6 +138,11 @@ const useViewModel = (
     }
   }, [args])
   return [state, setArgs]
+
+  /* if (onStateChange) {
+    onStateChange.call(this, state)
+  } */
+
 }
 
 export { useViewModel }

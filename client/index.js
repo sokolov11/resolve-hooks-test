@@ -6,7 +6,7 @@ import { ResolveContext } from 'resolve-react-hooks'
 
 import App from './App'
 
-const entryPoint = (context) => {
+const entryPoint = context => {
   const appContainer = document.createElement('div')
   document.body.appendChild(appContainer)
   render(

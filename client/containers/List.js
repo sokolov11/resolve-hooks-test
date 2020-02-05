@@ -6,11 +6,22 @@ const viewModelName = 'myViewModel'
 const aggregateId = '63adaa7d-bcf0-4d0f-bb22-3dce823c6019'
 
 function List() {
+  const callbacks = {
+    onEvent: event => {
+      console.log('--- topic event', event)
+      return event
+    },
+    onStateChange: event => {
+      console.log('--- view model state changed', event)
+      return event
+    }
+  }
   const [{ data, isLoading, isError }, setViewModelArgs] = useViewModel(
     viewModelName,
     [aggregateId],
     {},
-    null
+    null,
+    callbacks
   )
 
   const sendCommand = useCommand()

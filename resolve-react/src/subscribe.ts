@@ -7,7 +7,7 @@ import getOrigin from './get_origin'
 const initSubscribeAdapter = async (
   context: Context,
   createSubscribeAdapter: CreateSubscribeAdapter,
-  callback: Function
+  callback?: Function
 ): Promise<any> => {
   if (createSubscribeAdapter === createEmptySubscribeAdapter) {
     return createEmptySubscribeAdapter()
@@ -33,7 +33,7 @@ let subscribeAdapterPromise = null
 const getSubscribeAdapterPromise = async (
   context: Context,
   createSubscribeAdapter: CreateSubscribeAdapter,
-  callback: Function
+  callback?: Function
 ): Promise<any> => {
   if (subscribeAdapterPromise !== null) {
     return subscribeAdapterPromise
@@ -52,7 +52,7 @@ const doSubscribe = async (
   context: Context,
   createSubscribeAdapter: CreateSubscribeAdapter,
   { topicName, topicId },
-  callback: Function
+  callback?: Function
 ): Promise<object> => {
   const connectionManager = createConnectionManager()
   const subscribeAdapter = await getSubscribeAdapterPromise(context, createSubscribeAdapter, callback)
@@ -89,7 +89,7 @@ const doUnsubscribe = async (
   context: Context,
   createSubscribeAdapter: CreateSubscribeAdapter,
   { topicName, topicId },
-  callback: Function
+  callback?: Function
 ): Promise<object> => {
   const connectionManager = createConnectionManager()
   const subscribeAdapter = await getSubscribeAdapterPromise(context, createSubscribeAdapter, callback)
