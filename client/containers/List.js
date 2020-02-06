@@ -16,6 +16,7 @@ function List() {
       return event
     }
   }
+
   const [{ data, isLoading, isError }, setViewModelArgs] = useViewModel(
     viewModelName,
     [aggregateId],

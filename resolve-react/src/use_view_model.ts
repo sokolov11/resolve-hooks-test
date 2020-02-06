@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react'
+import React, { useState, useEffect, useContext, useCallback, EffectCallback } from 'react'
 
 import { doSubscribe, doUnsubscribe } from './subscribe'
 
@@ -39,62 +39,50 @@ const useViewModel = (
   viewModelName: string,
   aggregateIds: Array<string>,
   aggregateArgs: object,
-  inititalData: object,
   callbacks: Callbacks = {}
-): Array<any> => {
+): void => {
   const context = useContext(ResolveContext)
   if (!context) {
     throw Error('You cannot use resolve effects outside Resolve context')
   }
   const { subscribeAdapter, viewModels } = context
   const { onEvent, onStateChange } = callbacks
-  const [state, setState] = useState({ data: inititalData, isLoading: false, error: null })
-  const [args, setArgs] = useState(aggregateArgs)
 
-  const stateLoader = useCallback(() => {
-    try {
-      setState({ ...state, isLoading: false, error: null })
+  useEffect(() => {
+    const viewModel = viewModels.find(({ name }) => name === viewModelName)
+
+    if (!viewModel) {
+      return undefined
+    }
+
+    const viewModelState: { data: object } = {
+      data: {}
+    }
+
+    const onEventCallback = (event: Event): void => {
+      const actualEvent = typeof onEvent === 'function' ? onEvent(event) ?? event : event
+
+      if (typeof onStateChange === 'function') {
+        const handler: Function = viewModel.projection[event.type]
+        viewModelState.data = handler(viewModelState.data, actualEvent)
+        onStateChange(viewModelState.data)
+      }
+    }
+
+    if (typeof onStateChange === 'function') {
       loadViewModelState(context, {
         viewModelName,
         aggregateIds,
-        aggregateArgs: args
-      }).then(response => {
-        const viewModel = viewModels.find(({ name }) => name === viewModelName)
-        if (viewModel) {
-          const data = viewModel.deserializeState(response.result)
-          setState({ data, isLoading: false, error: null })
-        }
-      })
-    } catch (error) {
-      setState({ ...state, isLoading: false, error })
+        aggregateArgs
+      }).then(response => onStateChange(viewModel.deserializeState(response.result)))
     }
-  }, [args])
 
-  useEffect(() => {
-    stateLoader()
-  }, [args])
-
-  const onEventCallback: Function | undefined = onEvent
-    ? (event: Event): Event => {
-      const actualEvent = onEvent(event) || event
-      // apply to viewmodel (actualEvent)
-      const viewModel = viewModels.find(({ name }) => name === viewModelName)
-      if (viewModel) {
-        const handler: Function = viewModel.projection[event.type]
-        setState({ ...state, data: handler(state.data, actualEvent) })
-      }
-      return event
-    }
-    : undefined
-
-  useEffect(() => {
     const subscribe = async (): Promise<any> => {
-      const viewModel = viewModels.find(({ name }) => name === viewModelName)
-      if (viewModel) {
-        const subscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
-        if (subscribeAdapter) {
-          for (const { aggregateId, eventType } of subscriptionKeys) {
-            await doSubscribe(
+      const subscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
+      if (subscribeAdapter) {
+        await Promise.all(
+          subscriptionKeys.map(({ aggregateId, eventType }) =>
+            doSubscribe(
               context,
               subscribeAdapter,
               {
@@ -103,15 +91,19 @@ const useViewModel = (
               },
               onEventCallback
             )
-          }
-        }
+          )
+        )
       }
     }
+
     subscribe()
 
     return (): void => {
+      if (!viewModel) {
+        return
+      }
+
       const unsubscribe = async (): Promise<any> => {
-        const viewModel = viewModels.find(({ name }) => name === viewModelName)
         if (viewModel) {
           const unsubscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
           console.log('unmounting...', unsubscriptionKeys)
@@ -132,15 +124,7 @@ const useViewModel = (
       }
       unsubscribe()
     }
-  }, [])
-
-  useEffect(() => {
-    if (typeof onStateChange === 'function') {
-      onStateChange(state)
-    }
-  }, [state])
-
-  return [state, setArgs]
+  }, [context, aggregateArgs, aggregateIds, viewModelName])
 }
 
 export { useViewModel }
