@@ -184,7 +184,10 @@ export interface SubscribeAdapterOptions {
   url: string
 }
 
-export const getSubscribeAdapterOptions = async (context: Context, adapterName: string): Promise<SubscribeAdapterOptions> => {
+export const getSubscribeAdapterOptions = async (
+  context: Context,
+  adapterName: string
+): Promise<SubscribeAdapterOptions> => {
   const { rootPath } = context
   const origin = getOrigin()
 

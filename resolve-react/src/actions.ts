@@ -29,12 +29,7 @@ import {
   AUTH_FAILURE
 } from './action_types'
 
-export const sendCommandRequest = (
-  commandType,
-  aggregateId,
-  aggregateName,
-  payload
-) => ({
+export const sendCommandRequest = (commandType, aggregateId, aggregateName, payload) => ({
   type: SEND_COMMAND_REQUEST,
   commandType,
   aggregateId,
@@ -42,12 +37,7 @@ export const sendCommandRequest = (
   payload
 })
 
-export const sendCommandSuccess = (
-  commandType,
-  aggregateId,
-  aggregateName,
-  payload
-) => ({
+export const sendCommandSuccess = (commandType, aggregateId, aggregateName, payload) => ({
   type: SEND_COMMAND_SUCCESS,
   commandType,
   aggregateId,
@@ -55,13 +45,7 @@ export const sendCommandSuccess = (
   payload
 })
 
-export const sendCommandFailure = (
-  commandType,
-  aggregateId,
-  aggregateName,
-  payload,
-  error
-) => ({
+export const sendCommandFailure = (commandType, aggregateId, aggregateName, payload, error) => ({
   type: SEND_COMMAND_FAILURE,
   commandType,
   aggregateId,
@@ -108,67 +92,42 @@ export const unsubscribeTopicFailure = (topicName, topicId, error) => ({
   error
 })
 
-export const connectViewModel = (
-  viewModelName,
-  aggregateIds,
-  aggregateArgs
-) => ({
+export const connectViewModel = (viewModelName, aggregateIds, aggregateArgs) => ({
   type: CONNECT_VIEWMODEL,
   viewModelName,
   aggregateIds,
   aggregateArgs
 })
 
-export const disconnectViewModel = (
-  viewModelName,
-  aggregateIds,
-  aggregateArgs
-) => ({
+export const disconnectViewModel = (viewModelName, aggregateIds, aggregateArgs) => ({
   type: DISCONNECT_VIEWMODEL,
   viewModelName,
   aggregateIds,
   aggregateArgs
 })
 
-export const dropViewModelState = (
-  viewModelName,
-  aggregateIds,
-  aggregateArgs
-) => ({
+export const dropViewModelState = (viewModelName, aggregateIds, aggregateArgs) => ({
   type: DROP_VIEWMODEL_STATE,
   viewModelName,
   aggregateIds,
   aggregateArgs
 })
 
-export const connectReadModel = (
-  readModelName,
-  resolverName,
-  resolverArgs
-) => ({
+export const connectReadModel = (readModelName, resolverName, resolverArgs) => ({
   type: CONNECT_READMODEL,
   readModelName,
   resolverName,
   resolverArgs
 })
 
-export const disconnectReadModel = (
-  readModelName,
-  resolverName,
-  resolverArgs
-) => ({
+export const disconnectReadModel = (readModelName, resolverName, resolverArgs) => ({
   type: DISCONNECT_READMODEL,
   readModelName,
   resolverName,
   resolverArgs
 })
 
-export const loadReadModelStateRequest = (
-  readModelName,
-  resolverName,
-  resolverArgs,
-  queryId
-) => ({
+export const loadReadModelStateRequest = (readModelName, resolverName, resolverArgs, queryId) => ({
   type: LOAD_READMODEL_STATE_REQUEST,
   readModelName,
   resolverName,
@@ -193,13 +152,7 @@ export const loadReadModelStateSuccess = (
   timestamp
 })
 
-export const loadReadModelStateFailure = (
-  readModelName,
-  resolverName,
-  resolverArgs,
-  queryId,
-  error
-) => ({
+export const loadReadModelStateFailure = (readModelName, resolverName, resolverArgs, queryId, error) => ({
   type: LOAD_READMODEL_STATE_FAILURE,
   readModelName,
   resolverName,
@@ -208,11 +161,7 @@ export const loadReadModelStateFailure = (
   error
 })
 
-export const dropReadModelState = (
-  readModelName,
-  resolverName,
-  resolverArgs
-) => ({
+export const dropReadModelState = (readModelName, resolverName, resolverArgs) => ({
   type: DROP_READMODEL_STATE,
   readModelName,
   resolverName,

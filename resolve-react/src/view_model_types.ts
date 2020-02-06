@@ -1,6 +1,6 @@
 export interface ViewModel {
   name: string
-  projection: Array<object>,
+  projection: Array<object>
   deserializeState: (state: string) => object
 }
 
