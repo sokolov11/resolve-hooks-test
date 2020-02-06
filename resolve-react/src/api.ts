@@ -108,16 +108,15 @@ export type Command = {
   aggregateName: string
   payload?: object
 }
-
 export type CommandResult = unknown
 export type CommandOptions = RequestOptions
 
-export const sendCommand = async (
+export const execCommand = async (
   context: Context,
   command: Command,
-  options?: RequestOptions
+  options?: CommandOptions
 ): Promise<CommandResult> => {
-  const response = await request(context, '/api/commands', command)
+  const response = await request(context, '/api/commands', command, options)
 
   try {
     return await response.json()
@@ -126,10 +125,55 @@ export const sendCommand = async (
   }
 }
 
+type ReadModelQuery = {
+  readModelName: string
+  resolverName: string
+  resolverArgs: object
+}
+type ReadModelQueryResult = {
+  timestamp: number
+  data: string
+}
+type ReadModelQueryOptions = RequestOptions
+
+export const queryReadModel = async (
+  context: Context,
+  readModelQuery: ReadModelQuery,
+  options?: ReadModelQueryOptions
+): Promise<ReadModelQueryResult> => {
+  const { readModelName, resolverName, resolverArgs } = readModelQuery
+
+  const response = await request(
+    context,
+    `/api/query/${readModelName}/${resolverName}`,
+    resolverArgs,
+    options
+  )
+
+  const responseDate = response.headers.get('Date')
+
+  if (!responseDate) {
+    throw new HttpError(`"Date" header missed within response`)
+  }
+
+  try {
+    return {
+      timestamp: Number(responseDate),
+      data: await response.text()
+    }
+  } catch (error) {
+    throw new HttpError(error)
+  }
+}
+
 export type API = {
-  execCommand: unknown
-  execQuery: unknown
+  execCommand: (command: Command, options?: CommandOptions) => Promise<CommandResult>
+  queryReadModel: (query: ReadModelQuery, options?: ReadModelQueryOptions) => Promise<ReadModelQueryResult>
   bindViewModel: unknown
 }
 
-const getApiForContext = (context: Context) => {}
+export const getApiForContext = (context: Context): API => ({
+  execCommand: (command, options?): Promise<CommandResult> => execCommand(context, command, options),
+  queryReadModel: (query, options): Promise<ReadModelQueryResult> => queryReadModel(context, query, options),
+  bindViewModel: null
+})
