@@ -2,7 +2,7 @@ import unfetch from 'unfetch'
 import { assertLeadingSlash } from './assertions'
 import { isAbsoluteUrl } from './utils'
 import { Context } from './context'
-import { FetchError, HttpError } from './errors'
+import { GenericError, HttpError } from './errors'
 import determineOrigin from './determine_origin'
 
 const temporaryErrorHttpCodes: number[] = [
@@ -59,11 +59,11 @@ const request = async (context: Context, url: string, body: object): Promise<Res
   try {
     response = await doFetch(rootBasedUrl, options)
   } catch (error) {
-    throw new FetchError(error)
+    throw new GenericError(error)
   }
 
   if (temporaryErrorHttpCodes.includes(response.status)) {
-    throw new FetchError({
+    throw new GenericError({
       code: response.status,
       message: await response.text()
     })

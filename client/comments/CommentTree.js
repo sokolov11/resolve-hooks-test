@@ -1,64 +1,48 @@
 import React, { useState, useCallback, useMemo } from 'react'
+import { useApi } from 'resolve-react-hooks'
 import nanoid from 'nanoid'
-import { useCommand } from 'resolve-react-hooks'
 
 const randomColour = () => `#${((Math.random() * 0xffffff) << 0).toString(16)}`
 
-const InputField = React.memo(({ updateText, postComment }) => {
-  return (
-    <div>
-      <input onChange={updateText} />
-      <button style={{ background: randomColour() }} onClick={postComment}>
-        post
-      </button>
-    </div>
-  )
-})
-
 const CommentInput = ({ target, targetId }) => {
-  const api = useApi()
-
-  const { sendCommand } = api
-
-  const postComment = useCallback(text => {
-    sendCommand({
-      aggregateName: 'comment',
-      type: 'create',
-      aggregateId: nanoid(),
-      payload: {
-        text
-      }
-    })
-  }, [])
-
-  postComment('shit')
-
-  /*
   const [text, setText] = useState('')
+  const aggregateId = useMemo(() => nanoid(), [true])
 
-  const updateText = useCallback(e => setText(e.target.value), [setText])
+  const { execCommand } = useApi()
+  const postComment = useCallback(() => {
+    execCommand(
+      {
+        type: 'testConflict',
+        aggregateName: 'comment',
+        aggregateId,
+        payload: {
+          target,
+          targetId,
+          text
+        }
+      },
+      {
+        retryOnError: {
+          attempts: 5,
+          period: 1000,
+          errors: [500]
+        },
+        debug: true
+      }
+    )
+  }, [text, execCommand])
 
-  const incUserComments = useCommand(({ userId }) => ({
-    aggregateId: userId,
-    aggregateName: 'user',
-    type: 'incrementComments'
-  }))
-
-  incUserComments({ userId: 'user-id' })
-
-  const postComment = useCommand(({ content }) => ({
-    aggregateId: nanoid(),
-    aggregateName: 'comment',
-    type: 'create',
-    payload: {
-      target,
-      targetId,
-      text: content
-    }
-  }))
-
-  return <InputField updateText={updateText} postComment={postComment} />
-*/
+  // memo does not make sense here - just for testing
+  return useMemo(() => {
+    return (
+      <div>
+        <input onChange={setText} />
+        <button style={{ background: randomColour() }} onClick={postComment}>
+          post
+        </button>
+      </div>
+    )
+  }, [postComment, setText])
 }
 
 const CommentTree = ({ target = 'system', targetId = 'root' }) => {

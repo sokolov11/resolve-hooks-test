@@ -30,7 +30,9 @@ type RequestOptions = {
   retryOnError: {
     errors: number[] | number
     attempts: number
+    period: number
   }
+  debug: boolean
 }
 
 const insistentRequest = async (
@@ -61,14 +63,33 @@ const insistentRequest = async (
     const isMaxAttemptsReached = attempt >= (options?.retryOnError?.attempts ?? 0)
 
     if (isErrorExpected && !isMaxAttemptsReached) {
+      if (options?.debug) {
+        console.warn(
+          `Error code ${response.status} was expected. Attempting again #${attempt + 1}/${
+            options?.retryOnError?.attempts
+          }.`
+        )
+      }
+
+      const period = options?.retryOnError?.period
+
+      if (typeof period === 'number' && period > 0) {
+        await new Promise(resolve => setTimeout(resolve, period))
+      }
       return insistentRequest(input, init, options, attempt + 1)
     }
   }
 
-  throw new HttpError({
+  const error = new HttpError({
     code: response.status,
     message: await response.text()
   })
+
+  if (options?.debug) {
+    console.error(error)
+  }
+
+  throw error
 }
 
 const request = async (

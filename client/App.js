@@ -27,7 +27,8 @@ const App = ({ staticPath }) => {
       <div>
         <Helmet title="ReSolve Hooks Example" link={links} meta={[meta]} />
       </div>
-      <List />
+      <CommentTree />
+      {/* <List /> */}
     </div>
   )
 }

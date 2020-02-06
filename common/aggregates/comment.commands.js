@@ -1,4 +1,4 @@
-import { COMMENT_CREATED } from '../comment_events'
+import { COMMENT_CREATED, COMMENT_CONFLICTED } from '../comment_events'
 
 const assert = (payload, name) => {
   if (!payload[name]) {
@@ -27,5 +27,8 @@ export default {
         parentId
       }
     }
+  },
+  testConflict: () => {
+    throw new Error('conflict')
   }
 }
