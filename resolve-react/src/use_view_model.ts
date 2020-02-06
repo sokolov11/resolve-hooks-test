@@ -1,39 +1,31 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 
 import { doSubscribe, doUnsubscribe } from './subscribe'
 
-import { ResolveContext, Context } from './context'
+import { ResolveContext } from './context'
 
 import { loadViewModelState } from './client'
-
-import {
-  loadViewModelStateFailure,
-  loadViewModelStateSuccess,
-  loadViewModelStateRequest,
-  ViewModelState,
-  LoadViewModelState
-} from './view_model_types'
-
-const loadReducer = (state: ViewModelState, action: any): ViewModelState => {
-  switch (action.type) {
-    case LoadViewModelState.REQUEST:
-      return { ...state, isLoading: true }
-    case LoadViewModelState.SUCCESS:
-      return {
-        ...state,
-        data: action.result,
-        isLoading: false
-      }
-    case LoadViewModelState.FAILURE:
-      return { ...state, isLoading: false, isError: action.error }
-    default:
-      return { ...state }
-  }
-}
 
 interface Callbacks {
   onEvent?: Function
   onStateChange?: Function
+}
+
+interface SubscriptionKey {
+  aggregateId: string
+  eventType: string
+}
+
+const getSubscriptionKeys = (viewModel, aggregateIds: Array<string>): Array<SubscriptionKey> => {
+  const eventTypes = Object.keys(viewModel.projection).filter(eventType => eventType !== 'Init')
+  return eventTypes.reduce((acc: Array<SubscriptionKey>, eventType) => {
+    if (Array.isArray(aggregateIds)) {
+      acc.push(...aggregateIds.map(aggregateId => ({ aggregateId, eventType })))
+    } else if (aggregateIds === '*') {
+      acc.push({ aggregateId: '*', eventType })
+    }
+    return acc
+  }, [])
 }
 
 const useViewModel = (
@@ -49,66 +41,38 @@ const useViewModel = (
   }
   const { subscribeAdapter, viewModels } = context
   const { onEvent, onStateChange } = callbacks
-
-  const [state, dispatch] = useReducer(loadReducer, {
-    isLoading: false,
-    data: inititalData
-  })
+  const [state, setState] = useState({ data: inititalData, isLoading: false, error: null })
   const [args, setArgs] = useState(aggregateArgs)
-  const viewModel = viewModels.find(({ name }) => name === viewModelName)
+
+  const stateLoader = useCallback(() => {
+    try {
+      setState({ ...state, isLoading: false, error: null })
+      loadViewModelState(context, {
+        viewModelName,
+        aggregateIds,
+        aggregateArgs: args
+      }).then(response => {
+        const viewModel = viewModels.find(({ name }) => name === viewModelName)
+        if (viewModel) {
+          const data = viewModel.deserializeState(response.result)
+          setState({ data, isLoading: false, error: null })
+        }
+      })
+    } catch (error) {
+      setState({ ...state, isLoading: false, error })
+    }
+  }, [args])
 
   useEffect(() => {
-    let unmounted = false
+    stateLoader()
+  }, [args])
 
-    const doLoadViewModelState = async (): Promise<any> => {
-      dispatch(loadViewModelStateRequest(viewModelName, aggregateIds, aggregateArgs))
-      try {
-        const data = await loadViewModelState(context, {
-          viewModelName,
-          aggregateIds,
-          aggregateArgs
-        })
-
-        if (!unmounted) {
-          if (viewModel) {
-            dispatch(
-              loadViewModelStateSuccess(
-                viewModelName,
-                aggregateIds,
-                args,
-                viewModel.deserializeState(data.result),
-                new Date().getTime()
-              )
-            )
-          }
-        }
-      } catch (error) {
-        console.log(error)
-        if (!unmounted) {
-          dispatch(loadViewModelStateFailure(viewModelName, aggregateIds, args, error))
-        }
-      }
-    }
-
-    const doInitSubscription = async (): Promise<any> => {
-      if (!subscribeAdapter) {
-        return
-      }
-      try {
-        // TODO: dispatch subscription started
-        if (viewModel) {
-          const eventTypes = Object.keys(viewModel.projection).filter(eventType => eventType !== 'Init')
-          const subscriptionKeys = eventTypes.reduce(
-            (acc: Array<{ aggregateId: string, eventType: string }>, eventType) => {
-              if (Array.isArray(aggregateIds)) {
-                acc.push(...aggregateIds.map(aggregateId => ({ aggregateId, eventType })))
-              } else if (aggregateIds === '*') {
-                acc.push({ aggregateId: '*', eventType })
-              }
-              return acc
-            },
-            []
-          )
+  useEffect(() => {
+    const subscribe = async (): Promise<any> => {
+      const viewModel = viewModels.find(({ name }) => name === viewModelName)
+      if (viewModel) {
+        const subscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
+        if (subscribeAdapter) {
           for (const { aggregateId, eventType } of subscriptionKeys) {
             await doSubscribe(
               context,
@@ -121,28 +85,43 @@ const useViewModel = (
             )
           }
         }
-
-        // TODO: dispatch subscription succeed
-      } catch (error) {
-        console.log(error)
-        // TODO: dispatch subscription failed
       }
     }
+    subscribe()
 
-    doLoadViewModelState()
-    doInitSubscription()
-
-    return (): any => {
-      unmounted = true
-      // TODO: dropViewModelState, disconnect...
+    return (): void => {
+      const unsubscribe = async (): Promise<any> => {
+        const viewModel = viewModels.find(({ name }) => name === viewModelName)
+        if (viewModel) {
+          const subscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
+          console.log('unsubscriptionKeys', subscriptionKeys)
+          if (subscribeAdapter) {
+            for (const { aggregateId, eventType } of subscriptionKeys) {
+              await doUnsubscribe(
+                context,
+                subscribeAdapter,
+                {
+                  topicName: eventType,
+                  topicId: aggregateId
+                },
+                onEvent
+              )
+            }
+          }
+        }
+      }
+      console.log('unmounting...')
+      unsubscribe()
     }
-  }, [args])
+  }, [])
+
+  useEffect(() => {
+    if (typeof onStateChange === 'function') {
+      onStateChange(state)
+    }
+  }, [state])
+
   return [state, setArgs]
-
-  /* if (onStateChange) {
-    onStateChange.call(this, state)
-  } */
-
 }
 
 export { useViewModel }
