@@ -30,9 +30,9 @@ const initSubscribeAdapter = async (
   return subscribeAdapter
 }
 
-let subscribeAdapterPromise = null
+let subscribeAdapterPromise: Promise<any> | null = null
 
-const getSubscribeAdapterPromise = async (
+const getSubscribeAdapterPromise = (
   context: Context,
   createSubscribeAdapter: CreateSubscribeAdapter,
   callback?: Function
@@ -40,7 +40,7 @@ const getSubscribeAdapterPromise = async (
   if (subscribeAdapterPromise !== null) {
     return subscribeAdapterPromise
   }
-  subscribeAdapterPromise = await initSubscribeAdapter(context, createSubscribeAdapter, callback)
+  subscribeAdapterPromise = initSubscribeAdapter(context, createSubscribeAdapter, callback)
   return subscribeAdapterPromise
 }
 
