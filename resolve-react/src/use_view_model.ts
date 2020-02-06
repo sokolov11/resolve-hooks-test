@@ -6,14 +6,17 @@ import { ResolveContext } from './context'
 
 import { loadViewModelState } from './client'
 
-interface Callbacks {
-  onEvent?: Function
-  onStateChange?: Function
-}
-
 interface SubscriptionKey {
   aggregateId: string
   eventType: string
+}
+
+type Event = unknown
+type OnEventCallback = (event: Event) => Event
+
+interface Callbacks {
+  onEvent?: OnEventCallback
+  onStateChange?: Function
 }
 
 const getSubscriptionKeys = (viewModel, aggregateIds: Array<string>): Array<SubscriptionKey> => {
@@ -67,6 +70,14 @@ const useViewModel = (
     stateLoader()
   }, [args])
 
+  const onEventCallback: Function | undefined = onEvent
+    ? (event: Event) => {
+        const actualEvent = onEvent(event) || event
+        // apply to viewmodel (actualEvent)
+        return event
+      }
+    : undefined
+
   useEffect(() => {
     const subscribe = async (): Promise<any> => {
       const viewModel = viewModels.find(({ name }) => name === viewModelName)
@@ -81,7 +92,7 @@ const useViewModel = (
                 topicName: eventType,
                 topicId: aggregateId
               },
-              onEvent
+              onEventCallback
             )
           }
         }
