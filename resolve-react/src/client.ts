@@ -3,7 +3,7 @@ import { assertLeadingSlash } from './assertions'
 import { isAbsoluteUrl } from './utils'
 import { Context } from './context'
 import { FetchError, HttpError } from './errors'
-import getOrigin from './get_origin'
+//import getOrigin from './get_origin'
 
 const temporaryErrorHttpCodes: number[] = [
   408, // Request Timeout
