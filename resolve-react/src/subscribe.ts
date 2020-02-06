@@ -2,7 +2,7 @@ import createConnectionManager from './create_connection_manager'
 import createEmptySubscribeAdapter, { CreateSubscribeAdapter } from './empty_subscribe_adapter'
 import { getSubscribeAdapterOptions } from './client'
 import { Context } from './context'
-import getOrigin from './get_origin'
+import determineOrigin from './determine_origin'
 
 const initSubscribeAdapter = async (
   context: Context,
@@ -14,7 +14,9 @@ const initSubscribeAdapter = async (
   }
 
   const { appId, url } = await getSubscribeAdapterOptions(context, createSubscribeAdapter.adapterName)
-  const { origin = getOrigin(), rootPath } = context
+  const { origin: customOrigin, rootPath } = context
+
+  const origin = determineOrigin(customOrigin)
 
   const subscribeAdapter = createSubscribeAdapter({
     appId,

@@ -18,6 +18,7 @@ env:
 globals:
   fetch: false
   document: false
+  window: false
 rules:
   import/extensions: ['error', 'ignorePackages', {
       "js": "never",

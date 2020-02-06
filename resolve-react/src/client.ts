@@ -3,7 +3,7 @@ import { assertLeadingSlash } from './assertions'
 import { isAbsoluteUrl } from './utils'
 import { Context } from './context'
 import { FetchError, HttpError } from './errors'
-import getOrigin from './get_origin'
+import determineOrigin from './determine_origin'
 
 const temporaryErrorHttpCodes: number[] = [
   408, // Request Timeout
@@ -188,8 +188,8 @@ export const getSubscribeAdapterOptions = async (
   context: Context,
   adapterName: string
 ): Promise<SubscribeAdapterOptions> => {
-  const { rootPath } = context
-  const origin = getOrigin()
+  const { rootPath, origin: customOrigin } = context
+  const origin = determineOrigin(customOrigin)
 
   const response = await request(context, '/api/subscribe', {
     origin,
