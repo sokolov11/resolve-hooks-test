@@ -80,10 +80,7 @@ const insistentRequest = async (
     }
   }
 
-  const error = new HttpError({
-    code: response.status,
-    message: await response.text()
-  })
+  const error = new HttpError(response.status, await response.text())
 
   if (options?.debug) {
     console.error(error)
@@ -123,26 +120,54 @@ const request = async (
   return response
 }
 
+export type Request<T> = {
+  promise: () => Promise<T>
+}
 export type Command = {
   type: string
   aggregateId: string
   aggregateName: string
   payload?: object
 }
-export type CommandResult = unknown
+export type CommandResult = object
+export type CommandCallback = (error: Error | null, result: CommandResult | null) => void
 export type CommandOptions = RequestOptions
 
-export const execCommand = async (
+export const execCommand = (
   context: Context,
   command: Command,
-  options?: CommandOptions
-): Promise<CommandResult> => {
-  const response = await request(context, '/api/commands', command, options)
+  options?: CommandOptions,
+  callback?: CommandCallback
+): Request<CommandResult> => {
+  const asyncExec = async (): Promise<CommandResult> => {
+    const response = await request(context, '/api/commands', command, options)
 
-  try {
-    return await response.json()
-  } catch (error) {
-    throw new HttpError(error)
+    try {
+      return await response.json()
+    } catch (error) {
+      throw new GenericError(error)
+    }
+  }
+
+  const actualCallback =
+    typeof callback === 'function'
+      ? callback
+      : (): void => {
+          /* do nothing */
+        }
+
+  const promise = asyncExec()
+    .then(result => {
+      actualCallback(null, result)
+      return result
+    })
+    .catch(error => {
+      actualCallback(error, null)
+      throw error
+    })
+
+  return {
+    promise: (): Promise<CommandResult> => promise
   }
 }
 
@@ -174,7 +199,7 @@ export const queryReadModel = async (
   const responseDate = response.headers.get('Date')
 
   if (!responseDate) {
-    throw new HttpError(`"Date" header missed within response`)
+    throw new GenericError(`"Date" header missed within response`)
   }
 
   try {
@@ -183,18 +208,23 @@ export const queryReadModel = async (
       data: await response.text()
     }
   } catch (error) {
-    throw new HttpError(error)
+    throw new GenericError(error)
   }
 }
 
 export type API = {
-  execCommand: (command: Command, options?: CommandOptions) => Promise<CommandResult>
+  execCommand: (
+    command: Command,
+    options?: CommandOptions,
+    callback?: CommandCallback
+  ) => Request<CommandResult>
   queryReadModel: (query: ReadModelQuery, options?: ReadModelQueryOptions) => Promise<ReadModelQueryResult>
   bindViewModel: unknown
 }
 
 export const getApiForContext = (context: Context): API => ({
-  execCommand: (command, options?): Promise<CommandResult> => execCommand(context, command, options),
+  execCommand: (command, options?, callback?): Request<CommandResult> =>
+    execCommand(context, command, options, callback),
   queryReadModel: (query, options): Promise<ReadModelQueryResult> => queryReadModel(context, query, options),
   bindViewModel: null
 })

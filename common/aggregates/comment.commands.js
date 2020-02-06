@@ -6,10 +6,16 @@ const assert = (payload, name) => {
   }
 }
 
+const HttpError = (code, message) => {
+  const error = Error(message)
+  error.code = code
+  return error
+}
+
 export default {
   create: ({ isExist }, { payload }) => {
     if (isExist) {
-      throw Error('the comment already exists')
+      throw HttpError(409, 'the comment already exists')
     }
 
     assert(payload, 'target')

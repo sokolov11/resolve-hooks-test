@@ -1,15 +1,18 @@
 export class ApiError extends Error {}
 
 export class GenericError extends ApiError {
-  constructor(error) {
-    super(error)
+  constructor(message) {
+    super(message)
     this.name = 'FetchError'
   }
 }
 
 export class HttpError extends ApiError {
-  constructor(error) {
-    super(error)
+  code: string
+
+  constructor(code, message) {
+    super(message)
+    this.code = code
     this.name = 'HttpError'
   }
 }

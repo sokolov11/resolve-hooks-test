@@ -70,10 +70,7 @@ const request = async (context: Context, url: string, body: object): Promise<Res
   }
 
   if (!response.ok) {
-    throw new HttpError({
-      code: response.status,
-      message: await response.text()
-    })
+    throw new HttpError(response.status, await response.text())
   }
 
   if (jwtProvider && response.headers) {
@@ -98,7 +95,7 @@ export const sendCommand = async (context: Context, command: Command): Promise<C
   try {
     return await response.json()
   } catch (error) {
-    throw new HttpError(error)
+    throw new GenericError(error)
   }
 }
 
@@ -127,7 +124,7 @@ export const loadViewModelState = async (
   const responseDate = response.headers.get('Date')
 
   if (!responseDate) {
-    throw new HttpError(`"Date" header missed within response`)
+    throw new GenericError(`"Date" header missed within response`)
   }
 
   try {
@@ -136,7 +133,7 @@ export const loadViewModelState = async (
       result: await response.text()
     }
   } catch (error) {
-    throw new HttpError(error)
+    throw new GenericError(error)
   }
 }
 
@@ -166,7 +163,7 @@ export const loadReadModelState = async (
   const responseDate = response.headers.get('Date')
 
   if (!responseDate) {
-    throw new HttpError(`"Date" header missed within response`)
+    throw new GenericError(`"Date" header missed within response`)
   }
 
   try {
@@ -175,7 +172,7 @@ export const loadReadModelState = async (
       result: await response.text()
     }
   } catch (error) {
-    throw new HttpError(error)
+    throw new GenericError(error)
   }
 }
 
@@ -200,7 +197,7 @@ export const getSubscribeAdapterOptions = async (
   try {
     return await response.json()
   } catch (error) {
-    throw new HttpError(error)
+    throw new GenericError(error)
   }
 }
 
