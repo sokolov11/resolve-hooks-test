@@ -1,3 +1,4 @@
+/*
 import unfetch from 'unfetch'
 import { Context } from './context'
 import { isAbsoluteUrl } from './utils'
@@ -78,3 +79,4 @@ export type API = {
 }
 
 const getApiForContext = (context: Context) => {}
+*/

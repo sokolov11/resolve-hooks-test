@@ -14,8 +14,17 @@ export const useApi = (): Api => {
     throw Error('You cannot use resolve effects outside Resolve context')
   }
 
-  const api = useMemo(() => getApiForContext(context), [context])
+  //const api = useMemo(() => getApiForContext(context), [context])
 
-
-
+  return {
+    executeCommand: (): void => {
+      console.log('cmd')
+    },
+    executeQuery: (): void => {
+      console.log('qry')
+    },
+    bindViewModel: (): void => {
+      console.log('vmd')
+    }
+  }
 }
