@@ -11,7 +11,11 @@ interface SubscriptionKey {
   eventType: string
 }
 
-type Event = unknown
+interface Event {
+  type: string
+  [key: string]: any
+}
+
 type OnEventCallback = (event: Event) => Event
 
 interface Callbacks {
@@ -71,11 +75,16 @@ const useViewModel = (
   }, [args])
 
   const onEventCallback: Function | undefined = onEvent
-    ? (event: Event) => {
-        const actualEvent = onEvent(event) || event
-        // apply to viewmodel (actualEvent)
-        return event
+    ? (event: Event): Event => {
+      const actualEvent = onEvent(event) || event
+      // apply to viewmodel (actualEvent)
+      const viewModel = viewModels.find(({ name }) => name === viewModelName)
+      if (viewModel) {
+        const handler: Function = viewModel.projection[event.type]
+        setState({ ...state, data: handler(state.data, actualEvent) })
       }
+      return event
+    }
     : undefined
 
   useEffect(() => {
@@ -104,10 +113,10 @@ const useViewModel = (
       const unsubscribe = async (): Promise<any> => {
         const viewModel = viewModels.find(({ name }) => name === viewModelName)
         if (viewModel) {
-          const subscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
-          console.log('unsubscriptionKeys', subscriptionKeys)
+          const unsubscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
+          console.log('unmounting...', unsubscriptionKeys)
           if (subscribeAdapter) {
-            for (const { aggregateId, eventType } of subscriptionKeys) {
+            for (const { aggregateId, eventType } of unsubscriptionKeys) {
               await doUnsubscribe(
                 context,
                 subscribeAdapter,
@@ -121,7 +130,6 @@ const useViewModel = (
           }
         }
       }
-      console.log('unmounting...')
       unsubscribe()
     }
   }, [])
