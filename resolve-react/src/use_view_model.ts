@@ -119,7 +119,7 @@ const useViewModel = (
                   topicName: eventType,
                   topicId: aggregateId
                 },
-                onEvent
+                onEventCallback
               )
             }
           }

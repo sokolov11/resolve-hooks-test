@@ -2,6 +2,7 @@ import createConnectionManager from './create_connection_manager'
 import createEmptySubscribeAdapter, { CreateSubscribeAdapter } from './empty_subscribe_adapter'
 import { getSubscribeAdapterOptions } from './client'
 import { Context } from './context'
+import { rootCallback, addCallback, removeCallback } from './view_model_subscribe_callback'
 import determineOrigin from './determine_origin'
 
 const initSubscribeAdapter = async (
@@ -23,7 +24,7 @@ const initSubscribeAdapter = async (
     origin,
     rootPath,
     url,
-    onEvent: callback
+    onEvent: rootCallback
   })
   await subscribeAdapter.init()
 
@@ -66,22 +67,23 @@ const doSubscribe = async (
     connectionId: topicId
   })
 
+  addCallback(topicName, topicId, callback)
   await Promise.all([
     addedConnections.length > 0
       ? subscribeAdapter.subscribeToTopics(
-          addedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        addedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve(),
     removedConnections.length > 0
       ? subscribeAdapter.unsubscribeFromTopics(
-          removedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        removedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve()
   ])
 
@@ -104,23 +106,23 @@ const doUnsubscribe = async (
     connectionName: topicName,
     connectionId: topicId
   })
-
+  removeCallback(topicName, topicId, callback)
   await Promise.all([
     addedConnections.length > 0
       ? subscribeAdapter.subscribeToTopics(
-          addedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        addedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve(),
     removedConnections.length > 0
       ? subscribeAdapter.unsubscribeFromTopics(
-          removedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        removedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve()
   ])
 
