@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { useApi } from 'resolve-react-hooks'
 import nanoid from 'nanoid'
 
@@ -6,7 +6,7 @@ const randomColour = () => `#${((Math.random() * 0xffffff) << 0).toString(16)}`
 
 const CommentInput = ({ target, targetId }) => {
   const [text, setText] = useState('')
-  const aggregateId = useMemo(() => nanoid(), [true])
+  const [aggregateId, setAggregateId] = useState(nanoid())
 
   const updateText = useCallback(e => setText(e.target.value), [setText])
 
@@ -37,9 +37,10 @@ const CommentInput = ({ target, targetId }) => {
           return
         }
         console.log(`Norm: ${JSON.stringify(result, null, 2)}`)
+        setAggregateId(nanoid())
       }
     )
-  }, [text, execCommand])
+  }, [text, execCommand, aggregateId])
 
   const postCommentAsync = useCallback(() => {
     const exec = async () => {
@@ -66,13 +67,14 @@ const CommentInput = ({ target, targetId }) => {
         ).promise()
 
         console.log(`Norm: ${JSON.stringify(result, null, 2)}`)
+        setAggregateId(nanoid())
       } catch (error) {
         console.log(`Truba: ${error}`)
       }
     }
 
     exec()
-  }, [text, execCommand])
+  }, [text, execCommand, aggregateId])
 
   // memo does not make sense here - just for testing
   return useMemo(() => {
@@ -90,6 +92,60 @@ const CommentInput = ({ target, targetId }) => {
   }, [postComment, setText])
 }
 
+const CommentList = ({ target = 'system', targetId = 'root' }) => {
+  const [comments, setComments] = useState([])
+  const [error, setError] = useState(null)
+  const [updated, setUpdated] = useState(Date.now())
+  const { queryReadModel } = useApi()
+
+  useEffect(() => {
+    queryReadModel(
+      {
+        readModelName: 'comments',
+        resolverName: 'getComments',
+        resolverArgs: {
+          target,
+          targetId
+        }
+      },
+      {
+        retryOnError: {
+          period: 1000,
+          attempts: 5,
+          errors: [404]
+        },
+        debug: true
+      },
+      (err, result) => {
+        if (err) {
+          setError(err)
+          return
+        }
+        if (result) {
+          console.log(result)
+          setComments(result.data)
+        }
+      }
+    )
+  }, [updated])
+  const update = useCallback(() => setUpdated(Date.now()), [updated])
+
+  if (error) {
+    return <h1>error.message</h1>
+  }
+
+  return (
+    <div>
+      <button onClick={update}>refresh</button>
+      <ul>
+        {comments.map(({ text, id }) => (
+          <li key={id}>{text.toString()}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 const CommentTree = ({ target = 'system', targetId = 'root' }) => {
   return (
     <div>
@@ -97,6 +153,8 @@ const CommentTree = ({ target = 'system', targetId = 'root' }) => {
       <div>TargetID: {targetId}</div>
       <br />
       <CommentInput target={target} targetId={targetId} />
+      <br />
+      <CommentList target={target} targetId={targetId} />
     </div>
   )
 }

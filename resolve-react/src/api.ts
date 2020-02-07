@@ -178,37 +178,62 @@ type ReadModelQuery = {
 }
 type ReadModelQueryResult = {
   timestamp: number
-  data: string
+  data: any
 }
 type ReadModelQueryOptions = RequestOptions
+type ReadModelQueryCallback = (error: Error | null, result: ReadModelQueryResult | null) => void
 
-export const queryReadModel = async (
+export const queryReadModel = (
   context: Context,
   readModelQuery: ReadModelQuery,
-  options?: ReadModelQueryOptions
-): Promise<ReadModelQueryResult> => {
+  options?: ReadModelQueryOptions,
+  callback?: ReadModelQueryCallback
+): Request<ReadModelQueryResult> => {
   const { readModelName, resolverName, resolverArgs } = readModelQuery
 
-  const response = await request(
-    context,
-    `/api/query/${readModelName}/${resolverName}`,
-    resolverArgs,
-    options
-  )
+  const asyncExec = async (): Promise<ReadModelQueryResult> => {
+    const response = await request(
+      context,
+      `/api/query/${readModelName}/${resolverName}`,
+      resolverArgs,
+      options
+    )
 
-  const responseDate = response.headers.get('Date')
+    const responseDate = response.headers.get('Date')
 
-  if (!responseDate) {
-    throw new GenericError(`"Date" header missed within response`)
+    if (!responseDate) {
+      throw new GenericError(`"Date" header missed within response`)
+    }
+
+    try {
+      return {
+        timestamp: Number(responseDate),
+        data: await response.json()
+      }
+    } catch (error) {
+      throw new GenericError(error)
+    }
   }
 
-  try {
-    return {
-      timestamp: Number(responseDate),
-      data: await response.text()
-    }
-  } catch (error) {
-    throw new GenericError(error)
+  const actualCallback =
+    typeof callback === 'function'
+      ? callback
+      : (): void => {
+          /* do nothing */
+        }
+
+  const promise = asyncExec()
+    .then(result => {
+      actualCallback(null, result)
+      return result
+    })
+    .catch(error => {
+      actualCallback(error, null)
+      throw error
+    })
+
+  return {
+    promise: (): Promise<ReadModelQueryResult> => promise
   }
 }
 
@@ -218,13 +243,17 @@ export type API = {
     options?: CommandOptions,
     callback?: CommandCallback
   ) => Request<CommandResult>
-  queryReadModel: (query: ReadModelQuery, options?: ReadModelQueryOptions) => Promise<ReadModelQueryResult>
+  queryReadModel: (
+    query: ReadModelQuery,
+    options?: ReadModelQueryOptions,
+    callback?: ReadModelQueryCallback
+  ) => Request<ReadModelQueryResult>
   bindViewModel: unknown
 }
 
 export const getApiForContext = (context: Context): API => ({
   execCommand: (command, options?, callback?): Request<CommandResult> =>
     execCommand(context, command, options, callback),
-  queryReadModel: (query, options): Promise<ReadModelQueryResult> => queryReadModel(context, query, options),
+  queryReadModel: (query, options, callback?): Request<ReadModelQueryResult> => queryReadModel(context, query, options, callback),
   bindViewModel: null
 })

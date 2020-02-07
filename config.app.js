@@ -13,9 +13,9 @@ const appConfig = {
   ],
   readModels: [
     {
-      name: 'read-model-name',
-      projection: 'common/read-models/read-model-name.projection.js',
-      resolvers: 'common/read-models/read-model-name.resolvers.js',
+      name: 'comments',
+      projection: 'common/read-models/comments.projection.js',
+      resolvers: 'common/read-models/comments.resolvers.js',
       connectorName: 'default'
     }
   ],
