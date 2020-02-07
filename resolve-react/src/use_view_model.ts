@@ -74,7 +74,10 @@ const useViewModel = (
         viewModelName,
         aggregateIds,
         aggregateArgs
-      }).then(response => onStateChange(viewModel.deserializeState(response.result)))
+      }).then(response => {
+        viewModelState.data = viewModel.deserializeState(response.result)
+        onStateChange(viewModelState.data)
+      })
     }
 
     const subscribe = async (): Promise<any> => {
