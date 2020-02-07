@@ -149,7 +149,7 @@ const SystemStatus = ({ targetId }) => {
   const [state, setState] = useState({
     comments: 'n/a'
   })
-  const [events, setEvents] = useState(0)
+  const [events] = useState([])
   const { bindViewModel } = useApi()
 
   bindViewModel(
@@ -165,7 +165,7 @@ const SystemStatus = ({ targetId }) => {
       },
       onEvent: event => {
         console.log(event)
-        setEvents(events + 1)
+        events.push(event)
         return event
       }
     }
@@ -174,7 +174,7 @@ const SystemStatus = ({ targetId }) => {
   return (
     <div>
       <span>
-        System comments: {state.comments}/(reactive {events})
+        System comments: {state.comments}/(reactive {events.length})
       </span>
     </div>
   )
