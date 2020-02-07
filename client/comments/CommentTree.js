@@ -122,7 +122,6 @@ const CommentList = ({ target = 'system', targetId = 'root' }) => {
           return
         }
         if (result) {
-          console.log(result)
           setComments(result.data)
         }
       }
@@ -146,11 +145,47 @@ const CommentList = ({ target = 'system', targetId = 'root' }) => {
   )
 }
 
+const SystemStatus = ({ targetId }) => {
+  const [state, setState] = useState({
+    comments: 'n/a'
+  })
+  const [events, setEvents] = useState(0)
+  const { bindViewModel } = useApi()
+
+  bindViewModel(
+    {
+      viewModelName: 'system',
+      aggregateIds: '*',
+      aggregateArgs: {}
+    },
+    {
+      onStateChange: data => {
+        console.log(data)
+        setState(data)
+      },
+      onEvent: event => {
+        console.log(event)
+        setEvents(events + 1)
+        return event
+      }
+    }
+  )
+
+  return (
+    <div>
+      <span>
+        System comments: {state.comments}/(reactive {events})
+      </span>
+    </div>
+  )
+}
+
 const CommentTree = ({ target = 'system', targetId = 'root' }) => {
   return (
     <div>
       <div>Target: {target}</div>
       <div>TargetID: {targetId}</div>
+      <SystemStatus targetId={targetId} />
       <br />
       <CommentInput target={target} targetId={targetId} />
       <br />

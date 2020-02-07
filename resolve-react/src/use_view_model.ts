@@ -16,14 +16,14 @@ interface Event {
   [key: string]: any
 }
 
-type OnEventCallback = (event: Event) => Event
+export type OnEventCallback = (event: Event) => Event
 
-interface Callbacks {
+export interface Callbacks {
   onEvent?: OnEventCallback
   onStateChange?: Function
 }
 
-const getSubscriptionKeys = (viewModel, aggregateIds: Array<string>): Array<SubscriptionKey> => {
+const getSubscriptionKeys = (viewModel, aggregateIds: Array<string> | '*'): Array<SubscriptionKey> => {
   const eventTypes = Object.keys(viewModel.projection).filter(eventType => eventType !== 'Init')
   return eventTypes.reduce((acc: Array<SubscriptionKey>, eventType) => {
     if (Array.isArray(aggregateIds)) {
@@ -37,7 +37,7 @@ const getSubscriptionKeys = (viewModel, aggregateIds: Array<string>): Array<Subs
 
 const useViewModel = (
   viewModelName: string,
-  aggregateIds: Array<string>,
+  aggregateIds: Array<string> | '*',
   aggregateArgs: object,
   callbacks: Callbacks = {}
 ): void => {
@@ -82,6 +82,7 @@ const useViewModel = (
 
     const subscribe = async (): Promise<any> => {
       const subscriptionKeys = getSubscriptionKeys(viewModel, aggregateIds)
+      console.debug(subscriptionKeys)
       if (subscribeAdapter) {
         await Promise.all(
           subscriptionKeys.map(({ aggregateId, eventType }) =>
@@ -127,7 +128,7 @@ const useViewModel = (
       }
       unsubscribe()
     }
-  }, [context, aggregateArgs, aggregateIds, viewModelName])
+  }, [])
 }
 
 export { useViewModel }

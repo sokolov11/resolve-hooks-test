@@ -1,6 +1,10 @@
-let callbackMap: object = {}
+let callbackMap: {
+  [key: string]: {
+    [key: string]: Array<Function>
+  }
+} = {}
 
-const addCallback = (topicName: string, topicId: string, callback?: Function): void => {
+const addCallback = (topicName: string, topicId: string, callback: Function): void => {
   if (!callbackMap[topicName]) {
     callbackMap[topicName] = {}
   }
@@ -8,6 +12,7 @@ const addCallback = (topicName: string, topicId: string, callback?: Function): v
     callbackMap[topicName][topicId] = []
   }
   callbackMap[topicName][topicId].push(callback)
+  console.debug(callbackMap)
 }
 
 const removeCallback = (topicName: string, topicId: string, callback?: Function): void => {
@@ -18,7 +23,9 @@ const rootCallback = (event: any): void => {
   const { type: eventTopic, aggregateId } = event
   for (const topicName in callbackMap) {
     if (topicName === eventTopic) {
-      const listeners = callbackMap[topicName][aggregateId]
+      let listeners: Array<Function> = []
+      const wildcard = callbackMap[topicName]['*'] ?? []
+      listeners = listeners.concat(wildcard).concat(callbackMap[topicName][aggregateId])
       if (listeners) {
         listeners.forEach(listener => listener(event))
       }
