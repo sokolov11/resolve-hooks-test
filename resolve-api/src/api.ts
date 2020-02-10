@@ -5,7 +5,6 @@ import { assertLeadingSlash } from './assertions'
 import { GenericError, HttpError } from './errors'
 import determineOrigin from './determine_origin'
 
-
 type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>
 
 let cachedFetch: FetchFunction | null = null
@@ -258,7 +257,6 @@ export type API = {
     options?: ReadModelQueryOptions,
     callback?: ReadModelQueryCallback
   ) => Request<ReadModelQueryResult>
-  bindViewModel: (query: ViewModelQuery, callbacks: Callbacks, options?: ViewModelQueryOptions) => void
 }
 
 export const getApiForContext = (context: Context): API => ({
@@ -266,6 +264,4 @@ export const getApiForContext = (context: Context): API => ({
     execCommand(context, command, options, callback),
   queryReadModel: (query, options, callback?): Request<ReadModelQueryResult> =>
     queryReadModel(context, query, options, callback),
-  bindViewModel: (query, callbacks, options?) =>
-    useViewModel(query.viewModelName, query.aggregateIds, query.aggregateArgs, callbacks)
 })
