@@ -1,6 +1,6 @@
 kind: pipeline
 type: docker
-name: publishing
+name: resolve-react-hooks
 steps:
   - name: install
     image: reimagined/resolve-docker
@@ -53,7 +53,7 @@ trigger:
 
 kind: pipeline
 type: docker
-name: publishing
+name: resolve-api
 steps:
   - name: install
     image: reimagined/resolve-docker
