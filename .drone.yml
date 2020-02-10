@@ -2,35 +2,61 @@ kind: pipeline
 type: docker
 name: publishing
 steps:
-  - name: install
+  - name: install-react
     image: reimagined/resolve-docker
     pull: always
     commands:
       - cd resolve-react
       - yarn
 
-  - name: test
+  - name: install-api
+    image: reimagined/resolve-docker
+    pull: always
+    commands:
+      - cd resolve-api
+      - yarn
+
+  - name: test-api
     image: reimagined/resolve-docker
     pull: always
     depends_on:
-      - install
+      - install-api
+    commands:
+      - cd resolve-api
+      - yarn test
+
+  - name: test-react
+    image: reimagined/resolve-docker
+    pull: always
+    depends_on:
+      - install-react
     commands:
       - cd resolve-react
+      - yarn test
 
-  - name: compile
+  - name: compile-react
     image: reimagined/resolve-docker
     depends_on:
-      - test
+      - test-react
     commands:
       - cd resolve-react
       - yarn build
       - rm -rf ./src
 
-  - name: publish
+  - name: compile-api
+    image: reimagined/resolve-docker
+    depends_on:
+      - test-api
+    commands:
+      - cd resolve-api
+      - yarn build
+      - rm -rf ./src
+
+  - name: publish-react
     image: reimagined/resolve-docker
     pull: always
     depends_on:
-      - compile
+      - compile-react
     environment:
       NPM_REGISTRY:
         from_secret: npm_registry
@@ -38,6 +64,22 @@ steps:
         from_secret: npm_token
     commands:
       - cd resolve-react
+      - VERSION=$(/scripts/prepare_downstream)
+      - /scripts/npm_patch_rc
+      - /scripts/npm_publish $VERSION latest
+
+  - name: publish-api
+    image: reimagined/resolve-docker
+    pull: always
+    depends_on:
+      - compile-api
+    environment:
+      NPM_REGISTRY:
+        from_secret: npm_registry
+      NPM_TOKEN:
+        from_secret: npm_token
+    commands:
+      - cd resolve-api
       - VERSION=$(/scripts/prepare_downstream)
       - /scripts/npm_patch_rc
       - /scripts/npm_publish $VERSION latest
