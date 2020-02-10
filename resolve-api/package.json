@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc --declaration",
     "lint": "eslint --ignore-path=../.prettierignore './src/**/*.{ts,tsx}'",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "global": "^4.4.0",
