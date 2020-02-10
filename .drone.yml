@@ -2,61 +2,36 @@ kind: pipeline
 type: docker
 name: publishing
 steps:
-  - name: install-react
+  - name: install
     image: reimagined/resolve-docker
     pull: always
     commands:
       - cd resolve-react
       - yarn
 
-  - name: install-api
-    image: reimagined/resolve-docker
-    pull: always
-    commands:
-      - cd resolve-api
-      - yarn
-
-  - name: test-api
+  - name: test
     image: reimagined/resolve-docker
     pull: always
     depends_on:
-      - install-api
-    commands:
-      - cd resolve-api
-      - yarn test
-
-  - name: test-react
-    image: reimagined/resolve-docker
-    pull: always
-    depends_on:
-      - install-react
+      - install
     commands:
       - cd resolve-react
       - yarn test
 
-  - name: compile-react
+  - name: compile
     image: reimagined/resolve-docker
     depends_on:
-      - test-react
+      - test
     commands:
       - cd resolve-react
       - yarn build
       - rm -rf ./src
 
-  - name: compile-api
-    image: reimagined/resolve-docker
-    depends_on:
-      - test-api
-    commands:
-      - cd resolve-api
-      - yarn build
-      - rm -rf ./src
-
-  - name: publish-react
+  - name: publish
     image: reimagined/resolve-docker
     pull: always
     depends_on:
-      - compile-react
+      - compile
     environment:
       NPM_REGISTRY:
         from_secret: npm_registry
@@ -68,11 +43,48 @@ steps:
       - /scripts/npm_patch_rc
       - /scripts/npm_publish $VERSION latest
 
-  - name: publish-api
+trigger:
+  branch:
+    - master
+  event:
+    - push
+
+---
+
+kind: pipeline
+type: docker
+name: publishing
+steps:
+  - name: install
+    image: reimagined/resolve-docker
+    pull: always
+    commands:
+      - cd resolve-api
+      - yarn
+
+  - name: test
     image: reimagined/resolve-docker
     pull: always
     depends_on:
-      - compile-api
+      - install
+    commands:
+      - cd resolve-api
+      - yarn test
+
+  - name: compile
+    image: reimagined/resolve-docker
+    depends_on:
+      - test
+    commands:
+      - cd resolve-api
+      - yarn build
+      - rm -rf ./src
+
+  - name: publish
+    image: reimagined/resolve-docker
+    pull: always
+    depends_on:
+      - compile
     environment:
       NPM_REGISTRY:
         from_secret: npm_registry
