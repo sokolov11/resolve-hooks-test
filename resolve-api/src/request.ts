@@ -1,7 +1,6 @@
 import unfetch from 'unfetch'
 import { Context } from './context'
-import { isAbsoluteUrl } from './utils'
-import { assertLeadingSlash } from './assertions'
+import { getRootBasedUrl } from './utils'
 import determineOrigin from './determine_origin'
 import { GenericError, HttpError } from './errors'
 
@@ -14,16 +13,6 @@ const determineFetch = (): FetchFunction => {
     cachedFetch = typeof fetch === 'function' ? fetch : unfetch
   }
   return cachedFetch
-}
-
-const getRootBasedUrl = (rootPath: string, path: string, origin?: string): string => {
-  if (isAbsoluteUrl(path)) {
-    return path
-  }
-
-  assertLeadingSlash(path, 'Path')
-
-  return `${origin ?? ''}${rootPath ? `/${rootPath}` : ''}${path}`
 }
 
 export type RequestOptions = {

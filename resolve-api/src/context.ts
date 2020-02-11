@@ -5,6 +5,7 @@ import { CreateSubscribeAdapter } from './empty_subscribe_adapter'
 export type Context = {
   origin?: string
   rootPath: string
+  staticPath: string
   jwtProvider?: JSONWebTokenProvider
   viewModels: Array<ViewModel>
   subscribeAdapter?: CreateSubscribeAdapter

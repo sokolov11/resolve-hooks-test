@@ -1,7 +1,10 @@
+import url from 'url'
 import { Context } from './context'
 import { GenericError } from './errors'
 import { doSubscribe, getSubscriptionKeys, doUnsubscribe } from './subscribe'
 import { Request, RequestOptions, request } from './request'
+import { assertNonEmptyString } from './assertions'
+import { getRootBasedUrl } from './utils'
 
 function determineCallback<T>(options: any, callback: any, fallback: T): T {
   if (typeof options === 'function') {
@@ -197,6 +200,12 @@ export const unsubscribeFrom = (
   return unsubscribe()
 }
 
+const getStaticAssetUrl = ({ rootPath, staticPath }: Context, fileName: string): string => {
+  assertNonEmptyString(fileName)
+
+  return getRootBasedUrl(rootPath, url.resolve(`${staticPath}/`, `./${fileName}`))
+}
+
 export type API = {
   command: (command: Command, options?: CommandOptions, callback?: CommandCallback) => Request<CommandResult>
   query: (
@@ -204,9 +213,11 @@ export type API = {
     options?: ReadModelQueryOptions,
     callback?: ReadModelQueryCallback
   ) => Request<ReadModelQueryResult>
+  getStaticAssetUrl: (fileName: string) => string
 }
 
 export const getApi = (context: Context): API => ({
   command: (cmd, options?, callback?): Request<CommandResult> => command(context, cmd, options, callback),
-  query: (qr, options, callback?): Request<ReadModelQueryResult> => query(context, qr, options, callback)
+  query: (qr, options, callback?): Request<ReadModelQueryResult> => query(context, qr, options, callback),
+  getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName)
 })
