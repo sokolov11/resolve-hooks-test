@@ -1,128 +1,8 @@
-import unfetch from 'unfetch'
 import { Context } from './context'
-import { isAbsoluteUrl } from './utils'
-import { assertLeadingSlash } from './assertions'
-import { GenericError, HttpError } from './errors'
-import determineOrigin from './determine_origin'
+import { GenericError } from './errors'
+import { doSubscribe, getSubscriptionKeys, doUnsubscribe } from './subscribe'
+import { Request, RequestOptions, request } from './request'
 
-type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>
-
-let cachedFetch: FetchFunction | null = null
-
-const determineFetch = (): FetchFunction => {
-  if (!cachedFetch) {
-    cachedFetch = typeof fetch === 'function' ? fetch : unfetch
-  }
-  return cachedFetch
-}
-
-const getRootBasedUrl = (rootPath: string, path: string, origin?: string): string => {
-  if (isAbsoluteUrl(path)) {
-    return path
-  }
-
-  assertLeadingSlash(path, 'Path')
-
-  return `${origin ?? ''}${rootPath ? `/${rootPath}` : ''}${path}`
-}
-
-type RequestOptions = {
-  retryOnError: {
-    errors: number[] | number
-    attempts: number
-    period: number
-  }
-  debug: boolean
-}
-
-const insistentRequest = async (
-  input: RequestInfo,
-  init: RequestInit,
-  options?: RequestOptions,
-  attempt = 0
-): Promise<Response> => {
-  let response
-
-  try {
-    response = await determineFetch()(input, init)
-  } catch (error) {
-    throw new GenericError(error)
-  }
-
-  if (response.ok) {
-    return response
-  }
-
-  const expectedErrors = options?.retryOnError?.errors
-
-  if (expectedErrors) {
-    const isErrorExpected =
-      typeof expectedErrors === 'number'
-        ? expectedErrors === response.status
-        : expectedErrors.includes(response.status)
-    const isMaxAttemptsReached = attempt >= (options?.retryOnError?.attempts ?? 0)
-
-    if (isErrorExpected && !isMaxAttemptsReached) {
-      if (options?.debug) {
-        console.warn(
-          `Error code ${response.status} was expected. Attempting again #${attempt + 1}/${
-            options?.retryOnError?.attempts
-          }.`
-        )
-      }
-
-      const period = options?.retryOnError?.period
-
-      if (typeof period === 'number' && period > 0) {
-        await new Promise(resolve => setTimeout(resolve, period))
-      }
-      return insistentRequest(input, init, options, attempt + 1)
-    }
-  }
-
-  const error = new HttpError(response.status, await response.text())
-
-  if (options?.debug) {
-    console.error(error)
-  }
-
-  throw error
-}
-
-const request = async (
-  context: Context,
-  url: string,
-  body: object,
-  options?: RequestOptions
-): Promise<Response> => {
-  const { origin, rootPath, jwtProvider } = context
-  const rootBasedUrl = getRootBasedUrl(rootPath, url, determineOrigin(origin))
-  const init: RequestInit = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'same-origin',
-    body: JSON.stringify(body)
-  }
-
-  if (init.headers) {
-    const token = await jwtProvider?.get()
-    if (token) {
-      init.headers['Authorization'] = `Bearer ${token}`
-    }
-  }
-
-  const response = await insistentRequest(rootBasedUrl, init, options)
-
-  if (jwtProvider && response.headers) {
-    await jwtProvider.set(response.headers.get('x-jwt') ?? '')
-  }
-
-  return response
-}
-
-export type Request<T> = {
-  promise: () => Promise<T>
-}
 export type Command = {
   type: string
   aggregateId: string
@@ -153,8 +33,8 @@ export const execCommand = (
     typeof callback === 'function'
       ? callback
       : (): void => {
-          /* do nothing */
-        }
+        /* do nothing */
+      }
 
   const promise = asyncExec()
     .then(result => {
@@ -219,8 +99,8 @@ export const queryReadModel = (
     typeof callback === 'function'
       ? callback
       : (): void => {
-          /* do nothing */
-        }
+        /* do nothing */
+      }
 
   const promise = asyncExec()
     .then(result => {
@@ -246,6 +126,68 @@ type ViewModelQuery = {
 // TODO: temp
 type ViewModelQueryOptions = {}
 
+export const subscribeTo = (
+  context: Context,
+  viewModelName: string,
+  aggregateIds: Array<string> | '*',
+  callback?: Function
+): Promise<any> => {
+  const subscribe = async (): Promise<any> => {
+    const subscriptionKeys = getSubscriptionKeys(context, viewModelName, aggregateIds)
+    console.debug(subscriptionKeys)
+
+    if (typeof callback !== 'function') {
+      return
+    }
+
+    await Promise.all(
+      subscriptionKeys.map(({ aggregateId, eventType }) =>
+        doSubscribe(
+          context,
+          {
+            topicName: eventType,
+            topicId: aggregateId
+          },
+          callback
+        )
+      )
+    )
+  }
+
+  return subscribe()
+}
+
+export const unsubscribeFrom = (
+  context: Context,
+  viewModelName: string,
+  aggregateIds: Array<string> | '*',
+  callback?: Function
+): Promise<any> => {
+  const unsubscribe = async (): Promise<any> => {
+    const subscriptionKeys = getSubscriptionKeys(context, viewModelName, aggregateIds)
+    console.debug(subscriptionKeys)
+
+    if (typeof callback !== 'function') {
+      return
+    }
+
+    await Promise.all(
+      subscriptionKeys.map(({ aggregateId, eventType }) =>
+        doUnsubscribe(
+          context,
+          {
+            topicName: eventType,
+            topicId: aggregateId
+          },
+          callback
+        )
+      )
+    )
+  }
+
+  return unsubscribe()
+}
+
 export type API = {
   execCommand: (
     command: Command,
@@ -263,5 +205,5 @@ export const getApiForContext = (context: Context): API => ({
   execCommand: (command, options?, callback?): Request<CommandResult> =>
     execCommand(context, command, options, callback),
   queryReadModel: (query, options, callback?): Request<ReadModelQueryResult> =>
-    queryReadModel(context, query, options, callback),
+    queryReadModel(context, query, options, callback)
 })
