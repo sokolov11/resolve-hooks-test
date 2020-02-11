@@ -25,7 +25,8 @@ const rootCallback = (event: any): void => {
     if (topicName === eventTopic) {
       let listeners: Array<Function> = []
       const wildcard = callbackMap[topicName]['*'] ?? []
-      listeners = listeners.concat(wildcard).concat(callbackMap[topicName][aggregateId])
+      const aggregateIdListeners = callbackMap[topicName][aggregateId] ?? []
+      listeners = listeners.concat(wildcard).concat(aggregateIdListeners)
       if (listeners) {
         listeners.forEach(listener => listener(event))
       }

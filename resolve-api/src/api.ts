@@ -111,8 +111,8 @@ export const query = (
     typeof callback === 'function'
       ? callback
       : (): void => {
-          /* do nothing */
-        }
+        /* do nothing */
+      }
 
   const promise = asyncExec()
     .then(result => {
@@ -213,11 +213,18 @@ export type API = {
     options?: ReadModelQueryOptions,
     callback?: ReadModelQueryCallback
   ) => Request<ReadModelQueryResult>
-  getStaticAssetUrl: (fileName: string) => string
+  getStaticAssetUrl: (fileName: string) => string,
+  subscribeTo: (
+    viewModelName: string,
+    aggregateIds: Array<string> | '*',
+    callback?: Function
+  ) => Promise<void>
 }
 
 export const getApi = (context: Context): API => ({
   command: (cmd, options?, callback?): Request<CommandResult> => command(context, cmd, options, callback),
   query: (qr, options, callback?): Request<ReadModelQueryResult> => query(context, qr, options, callback),
-  getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName)
+  getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName),
+  subscribeTo: (viewModelName, aggregateIds, callback?): Promise<void> =>
+    subscribeTo(context, viewModelName, aggregateIds, callback)
 })

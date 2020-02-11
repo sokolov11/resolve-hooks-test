@@ -1,6 +1,5 @@
 import createConnectionManager from './create_connection_manager'
 import createEmptySubscribeAdapter from './empty_subscribe_adapter'
-// import { getSubscribeAdapterOptions } from './client'
 import { Context } from './context'
 import { rootCallback, addCallback, removeCallback } from './view_model_subscribe_callback'
 import determineOrigin from './determine_origin'
