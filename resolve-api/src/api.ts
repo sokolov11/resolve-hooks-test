@@ -15,6 +15,9 @@ function determineCallback<T>(options: any, callback: any, fallback: T): T {
   }
   return fallback
 }
+function isOptions<T>(arg: any): arg is T {
+  return arg && typeof arg !== 'function'
+}
 
 export type Command = {
   type: string
@@ -25,7 +28,6 @@ export type Command = {
 export type CommandResult = object
 export type CommandCallback = (error: Error | null, result: CommandResult | null) => void
 export type CommandOptions = RequestOptions
-const isCommandOptions = (arg: any): arg is CommandOptions => arg && typeof arg !== 'function'
 
 export const command = (
   context: Context,
@@ -33,7 +35,7 @@ export const command = (
   options?: CommandOptions | CommandCallback,
   callback?: CommandCallback
 ): Request<CommandResult> => {
-  const actualOptions = isCommandOptions(options) ? options : undefined
+  const actualOptions = isOptions<CommandOptions>(options) ? options : undefined
   const actualCallback = determineCallback<CommandCallback>(options, callback, (): void => {
     /* do nothing */
   })
@@ -63,33 +65,57 @@ export const command = (
   }
 }
 
-type ReadModelQuery = {
-  readModelName: string
-  resolverName: string
-  resolverArgs: object
+type ViewModelQuery = {
+  name: string
+  aggregateIds: string[] | '*'
+  args: any
 }
-type ReadModelQueryResult = {
+type ReadModelQuery = {
+  name: string
+  resolver: string
+  args: object
+}
+type Query = ViewModelQuery | ReadModelQuery
+const isReadModelQuery = (arg: any): arg is ReadModelQuery => arg && arg.resolverName
+
+type QueryResult = {
   timestamp: number
   data: any
 }
-type ReadModelQueryOptions = RequestOptions
-type ReadModelQueryCallback = (error: Error | null, result: ReadModelQueryResult | null) => void
+type QueryOptions = RequestOptions
+type QueryCallback = (error: Error | null, result: QueryResult | null) => void
 
 export const query = (
   context: Context,
-  readModelQuery: ReadModelQuery,
-  options?: ReadModelQueryOptions,
-  callback?: ReadModelQueryCallback
-): Request<ReadModelQueryResult> => {
-  const { readModelName, resolverName, resolverArgs } = readModelQuery
+  qr: Query,
+  options?: QueryOptions,
+  callback?: QueryCallback
+): Request<QueryResult> => {
+  const actualOptions = isOptions<QueryOptions>(options) ? options : undefined
+  const actualCallback = determineCallback<QueryCallback>(options, callback, (): void => {
+    /* do nothing */
+  })
 
-  const asyncExec = async (): Promise<ReadModelQueryResult> => {
-    const response = await request(
+  let queryRequest
+
+  if (isReadModelQuery(qr)) {
+    const { name, resolver, args } = qr
+    queryRequest = request(context, `/api/query/${name}/${resolver}`, args, actualOptions)
+  } else {
+    const { name, aggregateIds, args } = qr
+    const ids = aggregateIds === '*' ? aggregateIds : aggregateIds.join(',')
+    queryRequest = request(
       context,
-      `/api/query/${readModelName}/${resolverName}`,
-      resolverArgs,
-      options
+      `/api/query/${name}/${ids}`,
+      {
+        args
+      },
+      actualOptions
     )
+  }
+
+  const asyncExec = async (): Promise<QueryResult> => {
+    const response = await queryRequest
 
     const responseDate = response.headers.get('Date')
 
@@ -107,13 +133,6 @@ export const query = (
     }
   }
 
-  const actualCallback =
-    typeof callback === 'function'
-      ? callback
-      : (): void => {
-        /* do nothing */
-      }
-
   const promise = asyncExec()
     .then(result => {
       actualCallback(null, result)
@@ -125,18 +144,9 @@ export const query = (
     })
 
   return {
-    promise: (): Promise<ReadModelQueryResult> => promise
+    promise: (): Promise<QueryResult> => promise
   }
 }
-
-// TODO: temp
-type ViewModelQuery = {
-  viewModelName: string
-  aggregateIds: Array<string> | '*'
-  aggregateArgs: object
-}
-// TODO: temp
-type ViewModelQueryOptions = {}
 
 export const subscribeTo = (
   context: Context,
@@ -208,12 +218,8 @@ const getStaticAssetUrl = ({ rootPath, staticPath }: Context, fileName: string):
 
 export type API = {
   command: (command: Command, options?: CommandOptions, callback?: CommandCallback) => Request<CommandResult>
-  query: (
-    query: ReadModelQuery,
-    options?: ReadModelQueryOptions,
-    callback?: ReadModelQueryCallback
-  ) => Request<ReadModelQueryResult>
-  getStaticAssetUrl: (fileName: string) => string,
+  query: (query: Query, options?: QueryOptions, callback?: QueryCallback) => Request<QueryResult>
+  getStaticAssetUrl: (fileName: string) => string
   subscribeTo: (
     viewModelName: string,
     aggregateIds: Array<string> | '*',
@@ -223,7 +229,7 @@ export type API = {
 
 export const getApi = (context: Context): API => ({
   command: (cmd, options?, callback?): Request<CommandResult> => command(context, cmd, options, callback),
-  query: (qr, options, callback?): Request<ReadModelQueryResult> => query(context, qr, options, callback),
+  query: (qr, options, callback?): Request<QueryResult> => query(context, qr, options, callback),
   getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName),
   subscribeTo: (viewModelName, aggregateIds, callback?): Promise<void> =>
     subscribeTo(context, viewModelName, aggregateIds, callback)
