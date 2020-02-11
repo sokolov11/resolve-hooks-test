@@ -1,5 +1,5 @@
-import { ResolveContext } from './context'
+import { Context } from './context'
 import { GenericError, HttpError, temporaryErrorHttpCodes } from './errors'
-import { getApiForContext } from './api'
+import { getApi } from './api'
 
-export { getApiForContext, ResolveContext, temporaryErrorHttpCodes, HttpError, GenericError }
+export { getApi, Context, temporaryErrorHttpCodes, HttpError, GenericError }

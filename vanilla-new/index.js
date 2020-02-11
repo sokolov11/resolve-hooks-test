@@ -1,23 +1,24 @@
 import domready from 'domready'
-import { getApiForContext} from 'resolve-api'
+import { getApi } from 'resolve-api'
 
 const main = async resolveContext => {
   await new Promise(resolve => domready(resolve))
-  const api = getApiForContext(resolveContext)
+  const api = getApi(resolveContext)
 
   const sendMessage = (userName, message) =>
-    api
-      .execCommand({
+    api.command(
+      {
         aggregateName: 'Chat',
-        commandType: 'postMessage',
+        type: 'postMessage',
         aggregateId: userName,
         payload: message
-      })
-      .catch(error => {
-        // eslint-disable-next-line no-console
-        console.warn(`Error while sending command: ${error}`)
-      })
-
+      },
+      err => {
+        if (err) {
+          console.warn(`Error while sending command: ${err}`)
+        }
+      }
+    )
 }
 
 export default main

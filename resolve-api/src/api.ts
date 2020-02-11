@@ -3,6 +3,16 @@ import { GenericError } from './errors'
 import { doSubscribe, getSubscriptionKeys, doUnsubscribe } from './subscribe'
 import { Request, RequestOptions, request } from './request'
 
+function determineCallback<T>(options: any, callback: any, fallback: T): T {
+  if (typeof options === 'function') {
+    return options
+  }
+  if (typeof callback === 'function') {
+    return callback
+  }
+  return fallback
+}
+
 export type Command = {
   type: string
   aggregateId: string
@@ -12,15 +22,21 @@ export type Command = {
 export type CommandResult = object
 export type CommandCallback = (error: Error | null, result: CommandResult | null) => void
 export type CommandOptions = RequestOptions
+const isCommandOptions = (arg: any): arg is CommandOptions => arg && typeof arg !== 'function'
 
-export const execCommand = (
+export const command = (
   context: Context,
-  command: Command,
-  options?: CommandOptions,
+  cmd: Command,
+  options?: CommandOptions | CommandCallback,
   callback?: CommandCallback
 ): Request<CommandResult> => {
+  const actualOptions = isCommandOptions(options) ? options : undefined
+  const actualCallback = determineCallback<CommandCallback>(options, callback, (): void => {
+    /* do nothing */
+  })
+
   const asyncExec = async (): Promise<CommandResult> => {
-    const response = await request(context, '/api/commands', command, options)
+    const response = await request(context, '/api/commands', cmd, actualOptions)
 
     try {
       return await response.json()
@@ -28,13 +44,6 @@ export const execCommand = (
       throw new GenericError(error)
     }
   }
-
-  const actualCallback =
-    typeof callback === 'function'
-      ? callback
-      : (): void => {
-        /* do nothing */
-      }
 
   const promise = asyncExec()
     .then(result => {
@@ -63,7 +72,7 @@ type ReadModelQueryResult = {
 type ReadModelQueryOptions = RequestOptions
 type ReadModelQueryCallback = (error: Error | null, result: ReadModelQueryResult | null) => void
 
-export const queryReadModel = (
+export const query = (
   context: Context,
   readModelQuery: ReadModelQuery,
   options?: ReadModelQueryOptions,
@@ -99,8 +108,8 @@ export const queryReadModel = (
     typeof callback === 'function'
       ? callback
       : (): void => {
-        /* do nothing */
-      }
+          /* do nothing */
+        }
 
   const promise = asyncExec()
     .then(result => {
@@ -189,21 +198,15 @@ export const unsubscribeFrom = (
 }
 
 export type API = {
-  execCommand: (
-    command: Command,
-    options?: CommandOptions,
-    callback?: CommandCallback
-  ) => Request<CommandResult>
-  queryReadModel: (
+  command: (command: Command, options?: CommandOptions, callback?: CommandCallback) => Request<CommandResult>
+  query: (
     query: ReadModelQuery,
     options?: ReadModelQueryOptions,
     callback?: ReadModelQueryCallback
   ) => Request<ReadModelQueryResult>
 }
 
-export const getApiForContext = (context: Context): API => ({
-  execCommand: (command, options?, callback?): Request<CommandResult> =>
-    execCommand(context, command, options, callback),
-  queryReadModel: (query, options, callback?): Request<ReadModelQueryResult> =>
-    queryReadModel(context, query, options, callback)
+export const getApi = (context: Context): API => ({
+  command: (cmd, options?, callback?): Request<CommandResult> => command(context, cmd, options, callback),
+  query: (qr, options, callback?): Request<ReadModelQueryResult> => query(context, qr, options, callback)
 })
