@@ -6,18 +6,19 @@ import { Request, RequestOptions, request } from './request'
 import { assertNonEmptyString } from './assertions'
 import { getRootBasedUrl } from './utils'
 
-function determineCallback<T>(options: any, callback: any, fallback: T): T {
+function determineCallback<T>(options: any, callback: any): T | null {
   if (typeof options === 'function') {
     return options
   }
   if (typeof callback === 'function') {
     return callback
   }
-  return fallback
+  return null
 }
 function isOptions<T>(arg: any): arg is T {
   return arg && typeof arg !== 'function'
 }
+type PromiseOrVoid<T> = void | Promise<T>
 
 export type Command = {
   type: string
@@ -34,11 +35,9 @@ export const command = (
   cmd: Command,
   options?: CommandOptions | CommandCallback,
   callback?: CommandCallback
-): Request<CommandResult> => {
+): PromiseOrVoid<CommandResult> => {
   const actualOptions = isOptions<CommandOptions>(options) ? options : undefined
-  const actualCallback = determineCallback<CommandCallback>(options, callback, (): void => {
-    /* do nothing */
-  })
+  const actualCallback = determineCallback<CommandCallback>(options, callback)
 
   const asyncExec = async (): Promise<CommandResult> => {
     const response = await request(context, '/api/commands', cmd, actualOptions)
@@ -50,7 +49,11 @@ export const command = (
     }
   }
 
-  const promise = asyncExec()
+  if (!actualCallback) {
+    return asyncExec()
+  }
+
+  asyncExec()
     .then(result => {
       actualCallback(null, result)
       return result
@@ -60,14 +63,13 @@ export const command = (
       throw error
     })
 
-  return {
-    promise: (): Promise<CommandResult> => promise
-  }
+  return undefined
 }
 
+type AggregateSelector = string[] | '*'
 type ViewModelQuery = {
   name: string
-  aggregateIds: string[] | '*'
+  aggregateIds: AggregateSelector
   args: any
 }
 type ReadModelQuery = {
@@ -90,11 +92,9 @@ export const query = (
   qr: Query,
   options?: QueryOptions,
   callback?: QueryCallback
-): Request<QueryResult> => {
+): PromiseOrVoid<QueryResult> => {
   const actualOptions = isOptions<QueryOptions>(options) ? options : undefined
-  const actualCallback = determineCallback<QueryCallback>(options, callback, (): void => {
-    /* do nothing */
-  })
+  const actualCallback = determineCallback<QueryCallback>(options, callback)
 
   let queryRequest
 
@@ -133,7 +133,11 @@ export const query = (
     }
   }
 
-  const promise = asyncExec()
+  if (!actualCallback) {
+    return asyncExec()
+  }
+
+  asyncExec()
     .then(result => {
       actualCallback(null, result)
       return result
@@ -143,24 +147,22 @@ export const query = (
       throw error
     })
 
-  return {
-    promise: (): Promise<QueryResult> => promise
-  }
+  return undefined
 }
+
+type SubscribeResult = void
+type SubscribeHandler = (event: unknown) => void
+type SubscribeCallback = (error: Error | null, result: SubscribeResult | null) => void
 
 export const subscribeTo = (
   context: Context,
   viewModelName: string,
-  aggregateIds: Array<string> | '*',
-  callback?: Function
-): Promise<any> => {
-  const subscribe = async (): Promise<any> => {
+  aggregateIds: AggregateSelector,
+  handler: SubscribeHandler,
+  callback?: SubscribeCallback
+): PromiseOrVoid<SubscribeResult> => {
+  const subscribe = async (): Promise<SubscribeResult> => {
     const subscriptionKeys = getSubscriptionKeys(context, viewModelName, aggregateIds)
-    console.debug(subscriptionKeys)
-
-    if (typeof callback !== 'function') {
-      return
-    }
 
     await Promise.all(
       subscriptionKeys.map(({ aggregateId, eventType }) =>
@@ -170,19 +172,27 @@ export const subscribeTo = (
             topicName: eventType,
             topicId: aggregateId
           },
-          callback
+          handler
         )
       )
     )
   }
 
-  return subscribe()
+  if (typeof callback !== 'function') {
+    return subscribe()
+  }
+
+  subscribe()
+    .then(result => callback(null, result))
+    .catch(error => callback(error, null))
+
+  return undefined
 }
 
 export const unsubscribeFrom = (
   context: Context,
   viewModelName: string,
-  aggregateIds: Array<string> | '*',
+  aggregateIds: AggregateSelector,
   callback?: Function
 ): Promise<any> => {
   const unsubscribe = async (): Promise<any> => {
@@ -217,20 +227,26 @@ const getStaticAssetUrl = ({ rootPath, staticPath }: Context, fileName: string):
 }
 
 export type API = {
-  command: (command: Command, options?: CommandOptions, callback?: CommandCallback) => Request<CommandResult>
-  query: (query: Query, options?: QueryOptions, callback?: QueryCallback) => Request<QueryResult>
+  command: (
+    command: Command,
+    options?: CommandOptions,
+    callback?: CommandCallback
+  ) => PromiseOrVoid<CommandResult>
+  query: (query: Query, options?: QueryOptions, callback?: QueryCallback) => PromiseOrVoid<QueryResult>
   getStaticAssetUrl: (fileName: string) => string
   subscribeTo: (
     viewModelName: string,
-    aggregateIds: Array<string> | '*',
-    callback?: Function
-  ) => Promise<void>
+    aggregateIds: AggregateSelector,
+    handler: SubscribeHandler,
+    callback?: SubscribeCallback
+  ) => PromiseOrVoid<void>
 }
 
 export const getApi = (context: Context): API => ({
-  command: (cmd, options?, callback?): Request<CommandResult> => command(context, cmd, options, callback),
-  query: (qr, options, callback?): Request<QueryResult> => query(context, qr, options, callback),
+  command: (cmd, options?, callback?): PromiseOrVoid<CommandResult> =>
+    command(context, cmd, options, callback),
+  query: (qr, options, callback?): PromiseOrVoid<QueryResult> => query(context, qr, options, callback),
   getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName),
-  subscribeTo: (viewModelName, aggregateIds, callback?): Promise<void> =>
-    subscribeTo(context, viewModelName, aggregateIds, callback)
+  subscribeTo: (viewModelName, aggregateIds, handler, callback?): PromiseOrVoid<void> =>
+    subscribeTo(context, viewModelName, aggregateIds, handler, callback)
 })

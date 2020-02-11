@@ -113,19 +113,19 @@ const doSubscribe = async (context: Context, { topicName, topicId }, callback: F
   await Promise.all([
     addedConnections.length > 0
       ? subscribeAdapter.subscribeToTopics(
-        addedConnections.map(({ connectionName, connectionId }) => ({
-          topicName: connectionName,
-          topicId: connectionId
-        }))
-      )
+          addedConnections.map(({ connectionName, connectionId }) => ({
+            topicName: connectionName,
+            topicId: connectionId
+          }))
+        )
       : Promise.resolve(),
     removedConnections.length > 0
       ? subscribeAdapter.unsubscribeFromTopics(
-        removedConnections.map(({ connectionName, connectionId }) => ({
-          topicName: connectionName,
-          topicId: connectionId
-        }))
-      )
+          removedConnections.map(({ connectionName, connectionId }) => ({
+            topicName: connectionName,
+            topicId: connectionId
+          }))
+        )
       : Promise.resolve()
   ])
 
@@ -151,19 +151,19 @@ const doUnsubscribe = async (
   await Promise.all([
     addedConnections.length > 0
       ? subscribeAdapter.subscribeToTopics(
-        addedConnections.map(({ connectionName, connectionId }) => ({
-          topicName: connectionName,
-          topicId: connectionId
-        }))
-      )
+          addedConnections.map(({ connectionName, connectionId }) => ({
+            topicName: connectionName,
+            topicId: connectionId
+          }))
+        )
       : Promise.resolve(),
     removedConnections.length > 0
       ? subscribeAdapter.unsubscribeFromTopics(
-        removedConnections.map(({ connectionName, connectionId }) => ({
-          topicName: connectionName,
-          topicId: connectionId
-        }))
-      )
+          removedConnections.map(({ connectionName, connectionId }) => ({
+            topicName: connectionName,
+            topicId: connectionId
+          }))
+        )
       : Promise.resolve()
   ])
 
