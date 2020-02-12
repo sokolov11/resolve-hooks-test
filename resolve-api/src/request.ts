@@ -5,7 +5,9 @@ import determineOrigin from './determine_origin'
 import { GenericError, HttpError } from './errors'
 
 type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>
-type ResponseValidator = (result: any) => boolean
+type ResponseValidator = (response: Response) => Promise<boolean>
+
+const everythingValid: ResponseValidator = () => Promise.resolve(true)
 
 let cachedFetch: FetchFunction | null = null
 
@@ -17,20 +19,27 @@ const determineFetch = (): FetchFunction => {
 }
 
 export type RequestOptions = {
-  retryOnError: {
+  retryOnError?: {
     errors: number[] | number
     attempts: number
     period: number
   }
-  debug: boolean
+  waitForResponse?: {
+    validator: ResponseValidator
+    attempts: number
+    period: number
+  }
+  debug?: boolean
 }
 
 const insistentRequest = async (
   input: RequestInfo,
   init: RequestInit,
-  validator: ResponseValidator = (): boolean => true,
   options?: RequestOptions,
-  attempt = 0
+  attempts = {
+    error: 0,
+    response: 0
+  }
 ): Promise<Response> => {
   let response
 
@@ -41,6 +50,37 @@ const insistentRequest = async (
   }
 
   if (response.ok) {
+    if (options?.waitForResponse) {
+      const isValid = await (options?.waitForResponse?.validator ?? everythingValid)(response)
+      if (isValid) {
+        return response
+      }
+
+      const isMaxAttemptsReached = attempts.response >= (options?.waitForResponse?.attempts ?? 0)
+
+      if (isMaxAttemptsReached) {
+        throw new GenericError(` ${attempts.response} retries`)
+      }
+
+      if (options?.debug) {
+        console.warn(
+          `Unexpected response. Attempting again #${attempts.response + 1}/${
+            options?.waitForResponse?.attempts
+          }.`
+        )
+      }
+
+      const period = options?.retryOnError?.period
+
+      if (typeof period === 'number' && period > 0) {
+        await new Promise(resolve => setTimeout(resolve, period))
+      }
+
+      return insistentRequest(input, init, options, {
+        ...attempts,
+        response: attempts.response + 1
+      })
+    }
     return response
   }
 
@@ -51,12 +91,12 @@ const insistentRequest = async (
       typeof expectedErrors === 'number'
         ? expectedErrors === response.status
         : expectedErrors.includes(response.status)
-    const isMaxAttemptsReached = attempt >= (options?.retryOnError?.attempts ?? 0)
+    const isMaxAttemptsReached = attempts.error >= (options?.retryOnError?.attempts ?? 0)
 
     if (isErrorExpected && !isMaxAttemptsReached) {
       if (options?.debug) {
         console.warn(
-          `Error code ${response.status} was expected. Attempting again #${attempt + 1}/${
+          `Error code ${response.status} was expected. Attempting again #${attempts.error + 1}/${
             options?.retryOnError?.attempts
           }.`
         )
@@ -67,7 +107,10 @@ const insistentRequest = async (
       if (typeof period === 'number' && period > 0) {
         await new Promise(resolve => setTimeout(resolve, period))
       }
-      return insistentRequest(input, init, validator, options, attempt + 1)
+      return insistentRequest(input, init, options, {
+        ...attempts,
+        error: attempts.error + 1
+      })
     }
   }
 
@@ -84,8 +127,7 @@ export const request = async (
   context: Context,
   url: string,
   body: object,
-  options?: RequestOptions,
-  validator?: ResponseValidator
+  options?: RequestOptions
 ): Promise<Response> => {
   const { origin, rootPath, jwtProvider } = context
   const rootBasedUrl = getRootBasedUrl(rootPath, url, determineOrigin(origin))
@@ -103,7 +145,7 @@ export const request = async (
     }
   }
 
-  const response = await insistentRequest(rootBasedUrl, init, validator, options)
+  const response = await insistentRequest(rootBasedUrl, init, options)
 
   if (jwtProvider && response.headers) {
     await jwtProvider.set(response.headers.get('x-jwt') ?? '')

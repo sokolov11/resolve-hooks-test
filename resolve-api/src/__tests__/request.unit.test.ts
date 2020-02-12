@@ -3,7 +3,7 @@ import { request } from '../request'
 import { Context } from '../context'
 import determineOrigin from '../determine_origin'
 import { getRootBasedUrl } from '../utils'
-import { HttpError } from '../errors'
+import { GenericError, HttpError } from '../errors'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -252,5 +252,73 @@ test('fail on unexpected errors', async () => {
     })
   )
 
+  expect(mFetch).toHaveBeenCalledTimes(2)
+})
+
+test('wait for valid response', async () => {
+  const fetchResult = mFetch()
+  mFetch.mockClear()
+
+  mFetch.mockReturnValueOnce({
+    ...fetchResult,
+    text: () => Promise.resolve('invalid')
+  })
+  mFetch.mockReturnValueOnce({
+    ...fetchResult,
+    text: () => Promise.resolve('valid')
+  })
+
+  const response = await request(
+    mockContext,
+    '/request',
+    {
+      param: 'param'
+    },
+    {
+      waitForResponse: {
+        attempts: Infinity,
+        period: 1,
+        validator: async (r): Promise<boolean> => (await r.text()) === 'valid'
+      }
+    }
+  )
+
+  expect(await response.text()).toEqual('valid')
+  expect(mFetch).toHaveBeenCalledTimes(2)
+})
+
+test('response waiting failed: max attempts reached', async () => {
+  const fetchResult = mFetch()
+  mFetch.mockClear()
+
+  mFetch.mockReturnValueOnce({
+    ...fetchResult,
+    text: () => Promise.resolve('invalid')
+  })
+  mFetch.mockReturnValueOnce({
+    ...fetchResult,
+    text: () => Promise.resolve('invalid')
+  })
+  mFetch.mockReturnValueOnce({
+    ...fetchResult,
+    text: () => Promise.resolve('valid')
+  })
+
+  await expect(
+    request(
+      mockContext,
+      '/request',
+      {
+        param: 'param'
+      },
+      {
+        waitForResponse: {
+          attempts: 1,
+          period: 1,
+          validator: async (r): Promise<boolean> => (await r.text()) === 'valid'
+        }
+      }
+    )
+  ).rejects.toBeInstanceOf(GenericError)
   expect(mFetch).toHaveBeenCalledTimes(2)
 })
