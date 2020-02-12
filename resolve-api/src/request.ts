@@ -5,6 +5,7 @@ import determineOrigin from './determine_origin'
 import { GenericError, HttpError } from './errors'
 
 type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>
+type ResponseValidator = (result: any) => boolean
 
 let cachedFetch: FetchFunction | null = null
 
@@ -27,6 +28,7 @@ export type RequestOptions = {
 const insistentRequest = async (
   input: RequestInfo,
   init: RequestInit,
+  validator: ResponseValidator = (): boolean => true,
   options?: RequestOptions,
   attempt = 0
 ): Promise<Response> => {
@@ -55,7 +57,7 @@ const insistentRequest = async (
       if (options?.debug) {
         console.warn(
           `Error code ${response.status} was expected. Attempting again #${attempt + 1}/${
-          options?.retryOnError?.attempts
+            options?.retryOnError?.attempts
           }.`
         )
       }
@@ -65,7 +67,7 @@ const insistentRequest = async (
       if (typeof period === 'number' && period > 0) {
         await new Promise(resolve => setTimeout(resolve, period))
       }
-      return insistentRequest(input, init, options, attempt + 1)
+      return insistentRequest(input, init, validator, options, attempt + 1)
     }
   }
 
@@ -82,7 +84,8 @@ export const request = async (
   context: Context,
   url: string,
   body: object,
-  options?: RequestOptions
+  options?: RequestOptions,
+  validator?: ResponseValidator
 ): Promise<Response> => {
   const { origin, rootPath, jwtProvider } = context
   const rootBasedUrl = getRootBasedUrl(rootPath, url, determineOrigin(origin))
@@ -100,15 +103,11 @@ export const request = async (
     }
   }
 
-  const response = await insistentRequest(rootBasedUrl, init, options)
+  const response = await insistentRequest(rootBasedUrl, init, validator, options)
 
   if (jwtProvider && response.headers) {
     await jwtProvider.set(response.headers.get('x-jwt') ?? '')
   }
 
   return response
-}
-
-export type Request<T> = {
-  promise: () => Promise<T>
 }

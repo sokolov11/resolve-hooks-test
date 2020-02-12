@@ -2,7 +2,7 @@ import url from 'url'
 import { Context } from './context'
 import { GenericError } from './errors'
 import { doSubscribe, getSubscriptionKeys, doUnsubscribe } from './subscribe'
-import { Request, RequestOptions, request } from './request'
+import { RequestOptions, request } from './request'
 import { assertNonEmptyString } from './assertions'
 import { getRootBasedUrl } from './utils'
 
@@ -84,7 +84,13 @@ type QueryResult = {
   timestamp: number
   data: any
 }
-type QueryOptions = RequestOptions
+type QueryOptions = RequestOptions & {
+  waitFor?: {
+    result: any
+    period: number
+    attempts: number
+  }
+}
 type QueryCallback = (error: Error | null, result: QueryResult | null) => void
 
 export const query = (
