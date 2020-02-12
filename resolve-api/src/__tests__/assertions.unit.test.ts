@@ -1,6 +1,17 @@
 import { assertLeadingSlash } from '../assertions'
 
 describe('assertLeadingSlash', () => {
+  let spy
+  beforeAll(() => {
+    spy = jest.spyOn(console, 'error').mockImplementation((): void => {
+      /* do nothing */
+    })
+  })
+
+  afterAll(() => {
+    spy.mockRestore()
+  })
+
   test('value values', () => {
     assertLeadingSlash('/path')
     assertLeadingSlash('/../path')
