@@ -118,15 +118,12 @@ const refreshSubscribeAdapter = async (
   if (!subscribeAdapterRecreated) {
     try {
       if (subscribeAdapter.isConnected()) {
-        console.log('...still connected')
         clearTimeout(refreshTimeout)
         refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
         return Promise.resolve()
       }
     } catch (error) { }
   }
-
-  console.warn('disconnected')
 
   const connectionManager = createConnectionManager()
   const activeConnections = connectionManager.getConnections()
@@ -135,25 +132,17 @@ const refreshSubscribeAdapter = async (
     if (subscribeAdapter != null) {
       await subscribeAdapter.close()
     }
-  } catch (err) { }
 
-  try {
-    console.log('re-init')
     subscribeAdapterPromise = null
     subscribeAdapter = await getSubscribeAdapterPromise(context)
 
-    console.log('re-subscribe')
     subscribeAdapter.subscribeToTopics(
       activeConnections.map(({ connectionName, connectionId }) => ({
         topicName: connectionName,
         topicId: connectionId
       }))
     )
-  } catch (err) {
-    clearTimeout(refreshTimeout)
-    refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
-    return Promise.resolve()
-  }
+  } catch (err) { }
 
   clearTimeout(refreshTimeout)
   refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
