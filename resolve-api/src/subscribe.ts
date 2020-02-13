@@ -11,6 +11,9 @@ interface SubscriptionKey {
   eventType: string
 }
 
+const REFRESH_TIMEOUT = 1000
+let refreshTimeout
+
 export const getSubscriptionKeys = (
   context: Context,
   viewModelName: string,
@@ -58,6 +61,7 @@ export const getSubscribeAdapterOptions = async (
 }
 
 const initSubscribeAdapter = async (context: Context): Promise<any> => {
+  console.log('initSubscribeAdapter entry')
   const { subscribeAdapter: createSubscribeAdapter } = context
   if (createSubscribeAdapter === createEmptySubscribeAdapter) {
     return createEmptySubscribeAdapter()
@@ -79,6 +83,9 @@ const initSubscribeAdapter = async (context: Context): Promise<any> => {
   })
   await subscribeAdapter.init()
 
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  refreshSubscribeAdapter(context)
+
   return subscribeAdapter
 }
 
@@ -92,10 +99,98 @@ const getSubscribeAdapterPromise = (context: Context): Promise<any> => {
   return subscribeAdapterPromise
 }
 
-export const dropSubscribeAdapterPromise = (): void => {
-  subscribeAdapterPromise = null
+const refreshSubscribeAdapter = async (context: Context): Promise<any> => {
+  let subscribeAdapter
+  try {
+    subscribeAdapter = await getSubscribeAdapterPromise(context)
+  } catch (error) {
+    console.log('---')
+    subscribeAdapterPromise = null
+    if (refreshTimeout) {
+      clearTimeout(refreshTimeout)
+    }
+    refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
+    return Promise.resolve()
+  }
+
+  try {
+    if (subscribeAdapter.isConnected()) {
+      console.log('...still connected')
+      if (refreshTimeout) {
+        clearTimeout(refreshTimeout)
+      }
+      refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
+      return Promise.resolve()
+    }
+  } catch (error) { }
+
+  console.warn('disconnected')
   const connectionManager = createConnectionManager()
-  connectionManager.destroy()
+  const activeConnections = connectionManager.getConnections()
+  console.log('active connections', activeConnections)
+
+  try {
+    if (subscribeAdapter != null) {
+      await subscribeAdapter.close()
+    }
+    console.log('closed successfully')
+  } catch (err) {
+    console.log('.close() error:')
+    console.log(err)
+  }
+
+  try {
+    console.log('re-init')
+    subscribeAdapterPromise = null
+    subscribeAdapter = await getSubscribeAdapterPromise(context)
+  
+    console.log('re-subscribe')
+    subscribeAdapter.subscribeToTopics(
+      activeConnections.map(({ connectionName, connectionId }) => ({
+        topicName: connectionName,
+        topicId: connectionId
+      }))
+    )
+
+  } catch (err) {
+    console.log('getSubscribeAdapterPromise error:')
+    console.log(err)
+    if (refreshTimeout) {
+      clearTimeout(refreshTimeout)
+    }
+    refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
+    return Promise.resolve()
+  }
+
+  /* try {
+
+  } catch (err) {
+    console.log('subscribeToTopics error:')
+    console.log(err)
+    refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
+    return Promise.resolve()
+  }
+
+  return Promise.resolve() */
+
+  /*
+    try {
+      // if (subscribeAdapter != null) {
+      //   await subscribeAdapter.close()
+      // }
+      console.log('re-init')
+      subscribeAdapter = await initSubscribeAdapter(context)
+      console.log('re-sub')
+      subscribeAdapter.subscribeToTopics(
+        activeConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
+    } catch (error) {
+      console.log(error)
+      refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), 1000)
+    } */
 }
 
 const doSubscribe = async (context: Context, { topicName, topicId }, callback: Function): Promise<object> => {
@@ -113,19 +208,19 @@ const doSubscribe = async (context: Context, { topicName, topicId }, callback: F
   await Promise.all([
     addedConnections.length > 0
       ? subscribeAdapter.subscribeToTopics(
-          addedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        addedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve(),
     removedConnections.length > 0
       ? subscribeAdapter.unsubscribeFromTopics(
-          removedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        removedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve()
   ])
 
@@ -151,19 +246,19 @@ const doUnsubscribe = async (
   await Promise.all([
     addedConnections.length > 0
       ? subscribeAdapter.subscribeToTopics(
-          addedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        addedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve(),
     removedConnections.length > 0
       ? subscribeAdapter.unsubscribeFromTopics(
-          removedConnections.map(({ connectionName, connectionId }) => ({
-            topicName: connectionName,
-            topicId: connectionId
-          }))
-        )
+        removedConnections.map(({ connectionName, connectionId }) => ({
+          topicName: connectionName,
+          topicId: connectionId
+        }))
+      )
       : Promise.resolve()
   ])
 
