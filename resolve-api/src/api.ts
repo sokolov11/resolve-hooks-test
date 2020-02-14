@@ -29,7 +29,7 @@ export type Command = {
 }
 export type CommandResult = object
 export type CommandCallback = (error: Error | null, result: CommandResult | null) => void
-export type CommandOptions = RequestOptions
+export type CommandOptions = {}
 
 export const command = (
   context: Context,
