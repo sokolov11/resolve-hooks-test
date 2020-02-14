@@ -87,9 +87,9 @@ type QueryResult = {
 }
 type QueryOptions = {
   waitFor?: {
-    result: any
-    period: number
-    attempts: number
+    validator: (result: any) => boolean
+    period?: number
+    attempts?: number
   }
 }
 type QueryCallback = (error: Error | null, result: QueryResult | null) => void
@@ -100,20 +100,38 @@ export const query = (
   options?: QueryOptions | QueryCallback,
   callback?: QueryCallback
 ): PromiseOrVoid<QueryResult> => {
-  const actualOptions = isOptions<QueryOptions>(options) ? options : undefined
+  const requestOptions: RequestOptions = {
+    // TODO: add retry on temporary errors?
+  }
+
+  if (isOptions<QueryOptions>(options) && typeof options.waitFor?.validator === 'function') {
+    const { validator, period = 1000, attempts = 5 } = options.waitFor
+
+    requestOptions.waitForResponse = {
+      validator: async (response): Promise<boolean> => validator(await response.json()),
+      period,
+      attempts
+    }
+  }
+
   const actualCallback = determineCallback<QueryCallback>(options, callback)
 
   let queryRequest
 
   if (isReadModelQuery(qr)) {
     const { name, resolver, args } = qr
-    queryRequest = request(context, `/api/query/${name}/${resolver}`, args)
+    queryRequest = request(context, `/api/query/${name}/${resolver}`, args, requestOptions)
   } else {
     const { name, aggregateIds, args } = qr
     const ids = aggregateIds === '*' ? aggregateIds : aggregateIds.join(',')
-    queryRequest = request(context, `/api/query/${name}/${ids}`, {
-      args
-    })
+    queryRequest = request(
+      context,
+      `/api/query/${name}/${ids}`,
+      {
+        args
+      },
+      requestOptions
+    )
   }
 
   const asyncExec = async (): Promise<QueryResult> => {

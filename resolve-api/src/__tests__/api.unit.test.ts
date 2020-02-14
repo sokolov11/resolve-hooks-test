@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash'
 import { mocked } from 'ts-jest/utils'
 import { API, getApi } from '../api'
 import { Context } from '../context'
@@ -44,7 +45,7 @@ beforeEach(() => {
   api = getApi(mockContext)
 })
 
-afterAll(() => {
+afterEach(() => {
   mRequest.mockClear()
 })
 
@@ -60,7 +61,7 @@ describe('query', () => {
           result: 'query-result'
         })
     )
-    mRequest.mockResolvedValueOnce(
+    mRequest.mockResolvedValue(
       createMockResponse({
         headers: {
           get: getHeader
@@ -79,9 +80,14 @@ describe('query', () => {
       }
     })
 
-    expect(mRequest).toHaveBeenCalledWith(mockContext, '/api/query/query-name/query-resolver', {
-      name: 'value'
-    })
+    expect(mRequest).toHaveBeenCalledWith(
+      mockContext,
+      '/api/query/query-name/query-resolver',
+      {
+        name: 'value'
+      },
+      {}
+    )
   })
 
   test('result constructed from response data', async () => {
@@ -130,14 +136,60 @@ describe('query', () => {
   })
 
   test('awaiting for result', async () => {
-    const result = await api.query({
-      name: 'query-name',
-      resolver: 'query-resolver',
-      args: {
-        name: 'value'
+    await api.query(
+      {
+        name: 'query-name',
+        resolver: 'query-resolver',
+        args: {
+          name: 'value'
+        }
+      },
+      {
+        waitFor: {
+          validator: isEqual.bind(null, {
+            result: 'valid-result'
+          }),
+          attempts: 1,
+          period: 1
+        }
       }
-    })
+    )
+    expect(mRequest).toHaveBeenCalledWith(
+      mockContext,
+      '/api/query/query-name/query-resolver',
+      {
+        name: 'value'
+      },
+      {
+        waitForResponse: {
+          validator: expect.any(Function),
+          period: 1,
+          attempts: 1
+        }
+      }
+    )
 
-    
+    const validator = mRequest.mock.calls[0][3]?.waitForResponse?.validator as Function
+
+    await expect(
+      validator(
+        createMockResponse({
+          json: (): Promise<any> =>
+            Promise.resolve({
+              result: 'invalid-result'
+            })
+        })
+      )
+    ).resolves.toBeFalsy()
+    await expect(
+      validator(
+        createMockResponse({
+          json: (): Promise<any> =>
+            Promise.resolve({
+              result: 'valid-result'
+            })
+        })
+      )
+    ).resolves.toBeTruthy()
   })
 })

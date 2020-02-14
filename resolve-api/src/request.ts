@@ -5,7 +5,6 @@ import determineOrigin from './determine_origin'
 import { GenericError, HttpError } from './errors'
 
 type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>
-type ResponseValidator = (response: Response) => Promise<boolean>
 export type NarrowedResponse = {
   ok: boolean
   status: number
@@ -15,6 +14,7 @@ export type NarrowedResponse = {
   json: () => Promise<any>
   text: () => Promise<string>
 }
+type ResponseValidator = (response: NarrowedResponse) => Promise<boolean>
 
 const everythingValid: ResponseValidator = () => Promise.resolve(true)
 
