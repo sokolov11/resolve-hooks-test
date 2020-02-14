@@ -1,30 +1,31 @@
-import { mocked } from 'ts-jest/utils'
+import { doSubscribe, doUnsubscribe, dropSubscribeAdapterPromise } from '../subscribe'
 
-import {
-  doSubscribe,
-  doUnsubscribe,
-  dropSubscribeAdapterPromise,
-  // getSubscribeAdapterOptions
-} from '../subscribe'
+import { rootCallback } from '../view_model_subscribe_callback'
 
-// jest.mock('../subscribe')
-
-import { request } from '../request'
-
-jest.mock('../request')
+jest.useFakeTimers()
 jest.mock('../empty_subscribe_adapter')
 
-const mockedRequest = mocked(request)
-// const mockedGetSubscribeAdapterOptions = mocked(getSubscribeAdapterOptions)
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    interface Global {
+      fetch?: Function
+    }
+  }
+}
 
+const mFetch = jest.fn(() => ({
+  ok: true,
+  status: 200,
+  headers: {
+    get: (): void => undefined
+  },
+  json: (): Promise<object> => Promise.resolve({ appId: 'application-id', url: 'http://options-url' }),
+  text: (): Promise<string> => Promise.resolve('response')
+}))
 
 let context
 let mockSubscribeAdapter
-
-/* mockedGetSubscribeAdapterOptions.mockResolvedValue({
-  appId: 'application-id',
-  url: 'htttp://options-url'
-}) */
 
 const mockInit = jest.fn()
 const mockSubscribe = jest.fn()
@@ -32,24 +33,23 @@ const mockUnsubscribe = jest.fn()
 const mockCallback = jest.fn()
 
 const clearMocks = (): void => {
-  // mockedGetSubscribeAdapterOptions.mockClear()
   mockSubscribeAdapter.mockClear()
   mockInit.mockClear()
   mockSubscribe.mockClear()
   mockUnsubscribe.mockClear()
   dropSubscribeAdapterPromise()
   mockCallback.mockClear()
-
-/*   const response: Response = {
-    json: () => {
-      return Promise.resolve({ appId: 'application-id', url: 'htttp://options-url' })
-    },
-    status: 200
-  }
-  mockedRequest.mockResolvedValue(response) */
 }
 
-describe.skip('subscribe', () => {
+describe('subscribe', () => {
+  beforeAll(() => {
+    global.fetch = mFetch
+  })
+
+  afterAll(() => {
+    global.fetch = undefined
+  })
+
   beforeEach(async () => {
     mockSubscribeAdapter = jest.fn().mockReturnValue({
       init: mockInit,
@@ -80,10 +80,10 @@ describe.skip('subscribe', () => {
 
     expect(mockSubscribeAdapter).toBeCalledWith({
       appId: 'application-id',
-      onEvent: mockCallback,
+      onEvent: rootCallback,
       origin: 'http://origin-url',
       rootPath: '',
-      url: 'htttp://options-url'
+      url: 'http://options-url'
     })
     expect(mockInit).toBeCalledTimes(1)
     expect(mockSubscribe).toBeCalledTimes(1)
@@ -117,10 +117,10 @@ describe.skip('subscribe', () => {
 
     expect(mockSubscribeAdapter).toBeCalledWith({
       appId: 'application-id',
-      onEvent: mockCallback,
+      onEvent: rootCallback,
       origin: 'http://origin-url',
       rootPath: '',
-      url: 'htttp://options-url'
+      url: 'http://options-url'
     })
     expect(mockInit).toBeCalledTimes(1)
   })
