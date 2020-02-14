@@ -92,6 +92,12 @@ const initSubscribeAdapter = async (context: Context): Promise<any> => {
 
 let subscribeAdapterPromise: Promise<any> | null = null
 
+export const dropSubscribeAdapterPromise = (): void => {
+  subscribeAdapterPromise = null
+  const connectionManager = createConnectionManager()
+  connectionManager.destroy()
+}
+
 const getSubscribeAdapterPromise = (context: Context): Promise<any> => {
   if (subscribeAdapterPromise !== null) {
     return subscribeAdapterPromise
@@ -118,12 +124,15 @@ const refreshSubscribeAdapter = async (
   if (!subscribeAdapterRecreated) {
     try {
       if (subscribeAdapter.isConnected()) {
+        console.log('...still connected')
         clearTimeout(refreshTimeout)
         refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
         return Promise.resolve()
       }
     } catch (error) { }
   }
+
+  console.warn('disconnected')
 
   const connectionManager = createConnectionManager()
   const activeConnections = connectionManager.getConnections()
@@ -132,7 +141,7 @@ const refreshSubscribeAdapter = async (
     if (subscribeAdapter != null) {
       await subscribeAdapter.close()
     }
-
+    console.log('re-init, re-sub', activeConnections)
     subscribeAdapterPromise = null
     subscribeAdapter = await getSubscribeAdapterPromise(context)
 
