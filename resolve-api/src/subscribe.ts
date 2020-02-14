@@ -11,7 +11,7 @@ interface SubscriptionKey {
   eventType: string
 }
 
-const REFRESH_TIMEOUT = 500
+const REFRESH_TIMEOUT = 5000
 let refreshTimeout
 
 export const getSubscriptionKeys = (
