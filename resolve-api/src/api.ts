@@ -25,6 +25,7 @@ export type Command = {
   aggregateId: string
   aggregateName: string
   payload?: object
+  immediateConflict?: boolean
 }
 export type CommandResult = object
 export type CommandCallback = (error: Error | null, result: CommandResult | null) => void
@@ -78,7 +79,7 @@ type ReadModelQuery = {
   args: object
 }
 type Query = ViewModelQuery | ReadModelQuery
-const isReadModelQuery = (arg: any): arg is ReadModelQuery => arg && arg.resolverName
+const isReadModelQuery = (arg: any): arg is ReadModelQuery => arg && arg.resolver
 
 type QueryResult = {
   timestamp: number
@@ -96,7 +97,7 @@ type QueryCallback = (error: Error | null, result: QueryResult | null) => void
 export const query = (
   context: Context,
   qr: Query,
-  options?: QueryOptions,
+  options?: QueryOptions | QueryCallback,
   callback?: QueryCallback
 ): PromiseOrVoid<QueryResult> => {
   const actualOptions = isOptions<QueryOptions>(options) ? options : undefined
@@ -235,10 +236,14 @@ const getStaticAssetUrl = ({ rootPath, staticPath }: Context, fileName: string):
 export type API = {
   command: (
     command: Command,
-    options?: CommandOptions,
+    options?: CommandOptions | CommandCallback,
     callback?: CommandCallback
   ) => PromiseOrVoid<CommandResult>
-  query: (query: Query, options?: QueryOptions, callback?: QueryCallback) => PromiseOrVoid<QueryResult>
+  query: (
+    query: Query,
+    options?: QueryOptions | QueryCallback,
+    callback?: QueryCallback
+  ) => PromiseOrVoid<QueryResult>
   getStaticAssetUrl: (fileName: string) => string
   subscribeTo: (
     viewModelName: string,

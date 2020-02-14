@@ -6,6 +6,15 @@ import { GenericError, HttpError } from './errors'
 
 type FetchFunction = (input: RequestInfo, init?: RequestInit) => Promise<Response>
 type ResponseValidator = (response: Response) => Promise<boolean>
+export type NarrowedResponse = {
+  ok: boolean
+  status: number
+  headers: {
+    get: (name: string) => string | null
+  }
+  json: () => Promise<object>
+  text: () => Promise<string>
+}
 
 const everythingValid: ResponseValidator = () => Promise.resolve(true)
 
@@ -128,7 +137,7 @@ export const request = async (
   url: string,
   body: object,
   options?: RequestOptions
-): Promise<Response> => {
+): Promise<NarrowedResponse> => {
   const { origin, rootPath, jwtProvider } = context
   const rootBasedUrl = getRootBasedUrl(rootPath, url, determineOrigin(origin))
   const init: RequestInit = {
