@@ -70,7 +70,7 @@ describe('query', () => {
     )
   })
 
-  test('a request made', async () => {
+  test('valid request made', async () => {
     await api.query({
       name: 'query-name',
       resolver: 'query-resolver',
@@ -79,12 +79,9 @@ describe('query', () => {
       }
     })
 
-    expect(mRequest).toHaveBeenCalledWith(
-      mockContext,
-      '/api/query/query-name/query-resolver',
-      { name: 'value' },
-      undefined
-    )
+    expect(mRequest).toHaveBeenCalledWith(mockContext, '/api/query/query-name/query-resolver', {
+      name: 'value'
+    })
   })
 
   test('result constructed from response data', async () => {
@@ -130,5 +127,17 @@ describe('query', () => {
         done()
       }
     )
+  })
+
+  test('awaiting for result', async () => {
+    const result = await api.query({
+      name: 'query-name',
+      resolver: 'query-resolver',
+      args: {
+        name: 'value'
+      }
+    })
+
+    
   })
 })

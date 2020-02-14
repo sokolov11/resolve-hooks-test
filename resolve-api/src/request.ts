@@ -12,7 +12,7 @@ export type NarrowedResponse = {
   headers: {
     get: (name: string) => string | null
   }
-  json: () => Promise<object>
+  json: () => Promise<any>
   text: () => Promise<string>
 }
 

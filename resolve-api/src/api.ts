@@ -85,7 +85,7 @@ type QueryResult = {
   timestamp: number
   data: any
 }
-type QueryOptions = RequestOptions & {
+type QueryOptions = {
   waitFor?: {
     result: any
     period: number
@@ -107,18 +107,13 @@ export const query = (
 
   if (isReadModelQuery(qr)) {
     const { name, resolver, args } = qr
-    queryRequest = request(context, `/api/query/${name}/${resolver}`, args, actualOptions)
+    queryRequest = request(context, `/api/query/${name}/${resolver}`, args)
   } else {
     const { name, aggregateIds, args } = qr
     const ids = aggregateIds === '*' ? aggregateIds : aggregateIds.join(',')
-    queryRequest = request(
-      context,
-      `/api/query/${name}/${ids}`,
-      {
-        args
-      },
-      actualOptions
-    )
+    queryRequest = request(context, `/api/query/${name}/${ids}`, {
+      args
+    })
   }
 
   const asyncExec = async (): Promise<QueryResult> => {
