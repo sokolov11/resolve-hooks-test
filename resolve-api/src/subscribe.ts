@@ -96,6 +96,8 @@ export const dropSubscribeAdapterPromise = (): void => {
   subscribeAdapterPromise = null
   const connectionManager = createConnectionManager()
   connectionManager.destroy()
+  clearTimeout(refreshTimeout)
+  refreshTimeout = null
 }
 
 const getSubscribeAdapterPromise = (context: Context): Promise<any> => {
@@ -106,7 +108,7 @@ const getSubscribeAdapterPromise = (context: Context): Promise<any> => {
   return subscribeAdapterPromise
 }
 
-const refreshSubscribeAdapter = async (
+export const refreshSubscribeAdapter = async (
   context: Context,
   subscribeAdapterRecreated?: boolean
 ): Promise<any> => {
