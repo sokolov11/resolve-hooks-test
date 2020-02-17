@@ -1,28 +1,48 @@
 import { rootCallback, addCallback, removeCallback, dropCallbackMap } from '../view_model_subscribe_callback'
 
+const restoreConnectionCallback = jest.fn()
+const eventCallback = jest.fn()
+const clearMocks = (): void => {
+  restoreConnectionCallback.mockClear()
+  eventCallback.mockClear()
+}
+
 describe('subscribe callbacks', () => {
   afterEach(() => {
     dropCallbackMap()
+    clearMocks()
   })
 
   test('single callback added', async () => {
-    const callback = jest.fn()
     const event = { type: 'topic-1', aggregateId: 'id-1' }
-    addCallback('topic-1', 'id-1', callback)
+    addCallback('topic-1', 'id-1', eventCallback)
     rootCallback(event)
-    expect(callback).toBeCalledTimes(1)
-    expect(callback).toBeCalledWith(event)
+    expect(eventCallback).toBeCalledTimes(1)
+    expect(eventCallback).toBeCalledWith(event)
   })
 
   test('single callback removed', async () => {
-    const callback = jest.fn()
     const event = { type: 'topic-1', aggregateId: 'id-1' }
 
-    addCallback('topic-1', 'id-1', callback)
-    removeCallback('topic-1', 'id-1', callback)
+    addCallback('topic-1', 'id-1', eventCallback)
+    removeCallback('topic-1', 'id-1', eventCallback)
     rootCallback(event)
 
-    expect(callback).toBeCalledTimes(0)
+    expect(eventCallback).toBeCalledTimes(0)
+  })
+
+  test('single callback for * added', async () => {
+    const event1 = { type: 'topic-1', aggregateId: 'id-1' }
+    const event2 = { type: 'topic-1', aggregateId: 'id-2' }
+    const event3 = { type: 'topic-1', aggregateId: 'id-3' }
+    addCallback('topic-1', '*', eventCallback)
+    rootCallback(event1)
+    rootCallback(event2)
+    rootCallback(event3)
+    expect(eventCallback).toBeCalledTimes(3)
+    expect(eventCallback).toBeCalledWith(event1)
+    expect(eventCallback).toBeCalledWith(event2)
+    expect(eventCallback).toBeCalledWith(event3)
   })
 
   test('multiple callbacks added', async () => {
