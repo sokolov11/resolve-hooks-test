@@ -192,7 +192,8 @@ export const subscribeTo = (
             topicName: eventType,
             topicId: aggregateId
           },
-          handler
+          handler,
+          callback
         )
       )
     )

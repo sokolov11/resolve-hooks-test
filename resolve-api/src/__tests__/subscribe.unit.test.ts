@@ -24,13 +24,13 @@ const mFetch = jest.fn(() => ({
   text: (): Promise<string> => Promise.resolve('response')
 }))
 
-let context
-let mockSubscribeAdapter
-
 const mockInit = jest.fn()
 const mockSubscribe = jest.fn()
 const mockUnsubscribe = jest.fn()
 const mockCallback = jest.fn()
+
+let mockSubscribeAdapter
+let context
 
 const clearMocks = (): void => {
   mockSubscribeAdapter.mockClear()
@@ -233,5 +233,19 @@ describe('subscribe', () => {
       mockCallback
     )
     expect(mockSubscribe).toBeCalledTimes(1)
+  })
+})
+
+describe('re-subscribe', () => {
+  beforeAll(() => {
+    global.fetch = mFetch
+  })
+
+  afterAll(() => {
+    global.fetch = undefined
+  })
+
+  afterEach(() => {
+    clearMocks()
   })
 })

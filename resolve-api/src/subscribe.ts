@@ -124,15 +124,12 @@ const refreshSubscribeAdapter = async (
   if (!subscribeAdapterRecreated) {
     try {
       if (subscribeAdapter.isConnected()) {
-        console.log('...still connected')
         clearTimeout(refreshTimeout)
         refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
         return Promise.resolve()
       }
     } catch (error) {}
   }
-
-  console.warn('disconnected')
 
   const connectionManager = createConnectionManager()
   const activeConnections = connectionManager.getConnections()
@@ -141,7 +138,6 @@ const refreshSubscribeAdapter = async (
     if (subscribeAdapter != null) {
       await subscribeAdapter.close()
     }
-    console.log('re-init, re-sub', activeConnections)
     subscribeAdapterPromise = null
     subscribeAdapter = await getSubscribeAdapterPromise(context)
 
@@ -151,6 +147,11 @@ const refreshSubscribeAdapter = async (
         topicId: connectionId
       }))
     )
+
+    for (const connection of activeConnections) {
+      const { connectionName, connectionId } = connection
+      rootCallback({ type: connectionName, aggregateId: connectionId }, true)
+    }
   } catch (err) {}
 
   clearTimeout(refreshTimeout)
@@ -158,7 +159,12 @@ const refreshSubscribeAdapter = async (
   return Promise.resolve()
 }
 
-const doSubscribe = async (context: Context, { topicName, topicId }, callback: Function): Promise<object> => {
+const doSubscribe = async (
+  context: Context,
+  { topicName, topicId },
+  eventCallback: Function,
+  subscribeCallback?: Function
+): Promise<object> => {
   const connectionManager = createConnectionManager()
   const subscribeAdapter = await getSubscribeAdapterPromise(context)
   if (subscribeAdapter === null) {
@@ -169,7 +175,7 @@ const doSubscribe = async (context: Context, { topicName, topicId }, callback: F
     connectionId: topicId
   })
 
-  addCallback(topicName, topicId, callback)
+  addCallback(topicName, topicId, eventCallback, subscribeCallback)
   await Promise.all([
     addedConnections.length > 0
       ? subscribeAdapter.subscribeToTopics(

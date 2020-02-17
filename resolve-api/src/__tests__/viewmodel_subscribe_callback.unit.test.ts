@@ -13,12 +13,28 @@ describe('subscribe callbacks', () => {
     clearMocks()
   })
 
-  test('single callback added', async () => {
+  test('single callback added and called', async () => {
     const event = { type: 'topic-1', aggregateId: 'id-1' }
     addCallback('topic-1', 'id-1', eventCallback)
     rootCallback(event)
     expect(eventCallback).toBeCalledTimes(1)
     expect(eventCallback).toBeCalledWith(event)
+  })
+
+  test('single callback added and called #2', async () => {
+    const event = { type: 'topic-1', aggregateId: 'id-1' }
+    addCallback('topic-1', 'id-1', eventCallback)
+    rootCallback(event, false)
+    expect(eventCallback).toBeCalledTimes(1)
+    expect(eventCallback).toBeCalledWith(event)
+  })
+
+  test('connection restored callback added and called', async () => {
+    const event = { type: 'topic-1', aggregateId: 'id-1' }
+    addCallback('topic-1', 'id-1', eventCallback, restoreConnectionCallback)
+    rootCallback(event, true)
+    expect(restoreConnectionCallback).toBeCalledTimes(1)
+    expect(eventCallback).toBeCalledTimes(0)
   })
 
   test('single callback removed', async () => {
