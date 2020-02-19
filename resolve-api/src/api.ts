@@ -170,9 +170,9 @@ export const query = (
   return undefined
 }
 
-type SubscribeResult = void
-type SubscribeHandler = (event: unknown) => void
-type SubscribeCallback = (error: Error | null, result: SubscribeResult | null) => void
+export type SubscribeResult = void
+export type SubscribeHandler = (event: unknown) => void
+export type SubscribeCallback = (error: Error | null, result: SubscribeResult | null) => void
 
 export const subscribeTo = (
   context: Context,
@@ -265,6 +265,11 @@ export type API = {
     handler: SubscribeHandler,
     callback?: SubscribeCallback
   ) => PromiseOrVoid<void>
+  unsubscribeFrom: (
+    viewModelName: string,
+    aggregateIds: AggregateSelector,
+    handler: SubscribeHandler
+  ) => PromiseOrVoid<void>
 }
 
 export const getApi = (context: Context): API => ({
@@ -273,5 +278,7 @@ export const getApi = (context: Context): API => ({
   query: (qr, options, callback?): PromiseOrVoid<QueryResult> => query(context, qr, options, callback),
   getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName),
   subscribeTo: (viewModelName, aggregateIds, handler, callback?): PromiseOrVoid<void> =>
-    subscribeTo(context, viewModelName, aggregateIds, handler, callback)
+    subscribeTo(context, viewModelName, aggregateIds, handler, callback),
+  unsubscribeFrom: (viewModelName, aggregateIds, handler): PromiseOrVoid<void> =>
+    unsubscribeFrom(context, viewModelName, aggregateIds, handler)
 })
