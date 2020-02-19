@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Navbar, Image } from 'react-bootstrap'
 import { Helmet } from 'react-helmet'
 
-import List from './containers/List'
+import Test from './containers/Test'
+
 import CommentTree from './comments/CommentTree'
 
 const App = ({ staticPath }) => {
@@ -22,13 +23,30 @@ const App = ({ staticPath }) => {
     content: 'width=device-width, initial-scale=1'
   }
 
+  const [online, setOnline] = useState(true)
+
   return (
     <div>
       <div>
         <Helmet title="ReSolve Hooks Example" link={links} meta={[meta]} />
       </div>
-      <CommentTree />
-      {/* <List /> */}
+      <button
+        onClick={() => {
+          setOnline(true)
+        }}
+      >
+        Go online
+      </button>
+
+      <button
+        onClick={() => {
+          setOnline(false)
+        }}
+      >
+        Go offline
+      </button>
+
+      {online && <Test />}
     </div>
   )
 }
