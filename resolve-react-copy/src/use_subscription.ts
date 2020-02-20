@@ -7,7 +7,6 @@ import { ResolveContext } from './context'
 const useSubscription = (
   viewModelName: string,
   aggregateIds: Array<string> | '*',
-  aggregateArgs: object,
   onEvent: SubscribeHandler,
   onSubscribe?: SubscribeCallback
 ): void => {
@@ -30,8 +29,10 @@ const useSubscription = (
 
     return (): void => {
       if (!viewModel) {
-        api.unsubscribeFrom(viewModelName, aggregateIds, onEvent)
+        return
       }
+
+      api.unsubscribeFrom(viewModelName, aggregateIds, onEvent)
     }
   }, [])
 }

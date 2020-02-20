@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useSubscription } from 'resolve-react-hooks'
 
 const viewModelName = 'myViewModel'
-const aggregateId = '63adaa7d-bcf0-4d0f-bb22-3dce823c6019'
+const aggregateId = 'e526cfa9-6ab2-4ec5-bce6-4a0bd4bb6e4d' //'63adaa7d-bcf0-4d0f-bb22-3dce823c6019'
 
 function Test() {
   const [eventsCount, setEventsCount] = useState(0)
@@ -11,7 +11,7 @@ function Test() {
 
   const handleEvent = event => {
     console.log('event', event)
-    setEventsCount(eventsCount + 1)
+    setEventsCount(prevCount => prevCount + 1)
   }
 
   const handleSubscribe = () => {
@@ -19,7 +19,7 @@ function Test() {
     setSubscribed(true)
   }
 
-  useSubscription(viewModelName, [aggregateId], {}, handleEvent, handleSubscribe)
+  useSubscription(viewModelName, [aggregateId], handleEvent, handleSubscribe)
 
   return (
     <React.Fragment>

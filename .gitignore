@@ -71,6 +71,8 @@ code.zip
 static.zip
 
 resolve-react/lib
+resolve-react-copy/lib
 resolve-api/lib
+resolve-subscribe-socket.io
 .idea
 
