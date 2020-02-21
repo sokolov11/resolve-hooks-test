@@ -170,9 +170,15 @@ export const query = (
   return undefined
 }
 
+export type Subscription = {
+  readonly viewModelName: string
+  readonly aggregateIds: AggregateSelector
+  readonly handler: SubscribeHandler
+}
+
 export type SubscribeResult = void
 export type SubscribeHandler = (event: unknown) => void
-export type SubscribeCallback = (error: Error | null, result: SubscribeResult | null) => void
+export type SubscribeCallback = (error: Error | null, result: Subscription | null) => void
 
 export const subscribeTo = (
   context: Context,
@@ -180,8 +186,8 @@ export const subscribeTo = (
   aggregateIds: AggregateSelector,
   handler: SubscribeHandler,
   callback?: SubscribeCallback
-): PromiseOrVoid<SubscribeResult> => {
-  const subscribe = async (): Promise<SubscribeResult> => {
+): PromiseOrVoid<Subscription> => {
+  const subscribeAsync = async (): Promise<Subscription> => {
     const subscriptionKeys = getSubscriptionKeys(context, viewModelName, aggregateIds)
 
     await Promise.all(
@@ -197,30 +203,36 @@ export const subscribeTo = (
         )
       )
     )
+    return {
+      viewModelName,
+      aggregateIds,
+      handler
+    }
   }
 
   if (typeof callback !== 'function') {
-    return subscribe()
+    return subscribeAsync()
   }
 
-  subscribe()
+  subscribeAsync()
     .then(result => callback(null, result))
     .catch(error => callback(error, null))
 
-  return undefined
+  return Promise.resolve({
+    viewModelName,
+    aggregateIds,
+    handler
+  })
 }
 
-export const unsubscribeFrom = (
-  context: Context,
-  viewModelName: string,
-  aggregateIds: AggregateSelector,
-  callback?: Function
-): Promise<any> => {
-  const unsubscribe = async (): Promise<any> => {
+export const unsubscribe = (context: Context, subscription: Subscription): Promise<any> => {
+  const { viewModelName, aggregateIds, handler } = subscription
+
+  const unsubscribeAsync = async (): Promise<any> => {
     const subscriptionKeys = getSubscriptionKeys(context, viewModelName, aggregateIds)
     console.debug(subscriptionKeys)
 
-    if (typeof callback !== 'function') {
+    if (typeof handler !== 'function') {
       return
     }
 
@@ -232,13 +244,13 @@ export const unsubscribeFrom = (
             topicName: eventType,
             topicId: aggregateId
           },
-          callback
+          handler
         )
       )
     )
   }
 
-  return unsubscribe()
+  return unsubscribeAsync()
 }
 
 const getStaticAssetUrl = ({ rootPath, staticPath }: Context, fileName: string): string => {
@@ -264,12 +276,8 @@ export type API = {
     aggregateIds: AggregateSelector,
     handler: SubscribeHandler,
     callback?: SubscribeCallback
-  ) => PromiseOrVoid<void>
-  unsubscribeFrom: (
-    viewModelName: string,
-    aggregateIds: AggregateSelector,
-    handler: SubscribeHandler
-  ) => PromiseOrVoid<void>
+  ) => PromiseOrVoid<Subscription>
+  unsubscribe: (subscription: Subscription) => PromiseOrVoid<void>
 }
 
 export const getApi = (context: Context): API => ({
@@ -277,8 +285,7 @@ export const getApi = (context: Context): API => ({
     command(context, cmd, options, callback),
   query: (qr, options, callback?): PromiseOrVoid<QueryResult> => query(context, qr, options, callback),
   getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName),
-  subscribeTo: (viewModelName, aggregateIds, handler, callback?): PromiseOrVoid<void> =>
+  subscribeTo: (viewModelName, aggregateIds, handler, callback?): PromiseOrVoid<Subscription> =>
     subscribeTo(context, viewModelName, aggregateIds, handler, callback),
-  unsubscribeFrom: (viewModelName, aggregateIds, handler): PromiseOrVoid<void> =>
-    unsubscribeFrom(context, viewModelName, aggregateIds, handler)
+  unsubscribe: (subscription: Subscription): PromiseOrVoid<void> => unsubscribe(context, subscription)
 })
