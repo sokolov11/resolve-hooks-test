@@ -17,8 +17,6 @@ const useSubscription = (
   const { viewModels } = context
   const api = getApi(context)
 
-  const [subscription, setSubscription] = useState()
-
   useEffect(() => {
     const viewModel = viewModels.find(({ name }) => name === viewModelName)
 
@@ -26,9 +24,10 @@ const useSubscription = (
       return undefined
     }
 
+    let subscription
     const onSubscribeCallback = (err, result): void => {
       if (!err) {
-        setSubscription(result)
+        subscription = result
       }
 
       if (typeof onSubscribe === 'function') {
