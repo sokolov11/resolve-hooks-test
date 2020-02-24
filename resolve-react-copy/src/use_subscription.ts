@@ -4,8 +4,6 @@ import { getApi, SubscribeCallback, SubscribeHandler } from 'resolve-api'
 
 import { ResolveContext } from './context'
 
-let subscription
-
 const useSubscription = (
   viewModelName: string,
   aggregateIds: Array<string> | '*',
@@ -19,6 +17,8 @@ const useSubscription = (
   const { viewModels } = context
   const api = getApi(context)
 
+  const [subscription, setSubscription] = useState()
+
   useEffect(() => {
     const viewModel = viewModels.find(({ name }) => name === viewModelName)
 
@@ -28,7 +28,7 @@ const useSubscription = (
 
     const onSubscribeCallback = (err, result): void => {
       if (!err) {
-        subscription = result
+        setSubscription(result)
       }
 
       if (typeof onSubscribe === 'function') {
@@ -44,7 +44,6 @@ const useSubscription = (
       }
       if (subscription) {
         api.unsubscribe(subscription)
-        subscription = null
       }
     }
   }, [])
