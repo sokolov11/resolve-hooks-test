@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useEffect, useContext } from 'react'
 
-import { getApi, SubscribeCallback, SubscribeHandler } from 'resolve-api'
+import { getApi, SubscribeCallback, SubscribeHandler, ResubscribeCallback } from 'resolve-api'
 
 import { ResolveContext } from './context'
 
@@ -8,7 +8,8 @@ const useSubscription = (
   viewModelName: string,
   aggregateIds: Array<string> | '*',
   onEvent: SubscribeHandler,
-  onSubscribe?: SubscribeCallback
+  onSubscribe?: SubscribeCallback,
+  onResubscribe?: ResubscribeCallback
 ): void => {
   const context = useContext(ResolveContext)
   if (!context) {
@@ -35,7 +36,7 @@ const useSubscription = (
       }
     }
 
-    api.subscribeTo(viewModelName, aggregateIds, onEvent, onSubscribeCallback)
+    api.subscribeTo(viewModelName, aggregateIds, onEvent, onSubscribeCallback, onResubscribe)
 
     return (): void => {
       if (!viewModel) {

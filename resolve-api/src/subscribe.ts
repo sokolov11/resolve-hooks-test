@@ -117,7 +117,6 @@ export const refreshSubscribeAdapter = async (
     subscribeAdapter = await getSubscribeAdapterPromise(context)
   } catch (error) {
     subscribeAdapterPromise = null
-
     clearTimeout(refreshTimeout)
     refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context, true), REFRESH_TIMEOUT)
     return Promise.resolve()
@@ -126,6 +125,7 @@ export const refreshSubscribeAdapter = async (
   if (!subscribeAdapterRecreated) {
     try {
       if (subscribeAdapter.isConnected()) {
+        // still connected
         clearTimeout(refreshTimeout)
         refreshTimeout = setTimeout(() => refreshSubscribeAdapter(context), REFRESH_TIMEOUT)
         return Promise.resolve()
@@ -135,6 +135,8 @@ export const refreshSubscribeAdapter = async (
 
   const connectionManager = createConnectionManager()
   const activeConnections = connectionManager.getConnections()
+
+  // disconnected
 
   try {
     if (subscribeAdapter != null) {

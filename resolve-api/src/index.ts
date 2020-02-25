@@ -1,6 +1,6 @@
 import { Context } from './context'
 import { GenericError, HttpError, temporaryErrorHttpCodes } from './errors'
-import { getApi, SubscribeCallback, SubscribeHandler, Subscription } from './api'
+import { getApi, SubscribeCallback, SubscribeHandler, Subscription, ResubscribeCallback } from './api'
 
 export {
   getApi,
@@ -10,5 +10,6 @@ export {
   GenericError,
   SubscribeCallback,
   SubscribeHandler,
-  Subscription
+  Subscription,
+  ResubscribeCallback
 }

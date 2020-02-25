@@ -13,12 +13,23 @@ function Test({ aggregateId }) {
     setEventsCount(prevCount => prevCount + 1)
   }
 
-  const handleSubscribe = () => {
-    console.log('subscribed')
+  const handleSubscribe = (err, subscription) => {
+    console.log('subscribed', err, subscription)
     setSubscribed(true)
   }
 
-  useSubscription(viewModelName, aggregateId === '*' ? '*' : [aggregateId], handleEvent, handleSubscribe)
+  const handleResubscribe = () => {
+    console.log('resubscribed')
+    setSubscribed(true)
+  }
+
+  useSubscription(
+    viewModelName,
+    aggregateId === '*' ? '*' : [aggregateId],
+    handleEvent,
+    handleSubscribe,
+    handleResubscribe
+  )
 
   return (
     <React.Fragment>

@@ -180,12 +180,19 @@ export type SubscribeResult = void
 export type SubscribeHandler = (event: unknown) => void
 export type SubscribeCallback = (error: Error | null, result: Subscription | null) => void
 
+export type ResubscribeInfo = {
+  eventTopic: string
+  aggregateId: string
+}
+export type ResubscribeCallback = (error: Error | null, result: ResubscribeInfo | null) => void
+
 export const subscribeTo = (
   context: Context,
   viewModelName: string,
   aggregateIds: AggregateSelector,
   handler: SubscribeHandler,
-  callback?: SubscribeCallback
+  subscribeCallback?: SubscribeCallback,
+  resubscribeCallback?: ResubscribeCallback
 ): PromiseOrVoid<Subscription> => {
   const subscribeAsync = async (): Promise<Subscription> => {
     const subscriptionKeys = getSubscriptionKeys(context, viewModelName, aggregateIds)
@@ -199,7 +206,7 @@ export const subscribeTo = (
             topicId: aggregateId
           },
           handler,
-          callback
+          resubscribeCallback
         )
       )
     )
@@ -210,13 +217,13 @@ export const subscribeTo = (
     }
   }
 
-  if (typeof callback !== 'function') {
+  if (typeof subscribeCallback !== 'function') {
     return subscribeAsync()
   }
 
   subscribeAsync()
-    .then(result => callback(null, result))
-    .catch(error => callback(error, null))
+    .then(result => subscribeCallback(null, result))
+    .catch(error => subscribeCallback(error, null))
 
   return Promise.resolve({
     viewModelName,
@@ -275,7 +282,8 @@ export type API = {
     viewModelName: string,
     aggregateIds: AggregateSelector,
     handler: SubscribeHandler,
-    callback?: SubscribeCallback
+    subscribeCallback?: SubscribeCallback,
+    resubscribeCallback?: ResubscribeCallback
   ) => PromiseOrVoid<Subscription>
   unsubscribe: (subscription: Subscription) => PromiseOrVoid<void>
 }
@@ -285,7 +293,13 @@ export const getApi = (context: Context): API => ({
     command(context, cmd, options, callback),
   query: (qr, options, callback?): PromiseOrVoid<QueryResult> => query(context, qr, options, callback),
   getStaticAssetUrl: (fileName: string): string => getStaticAssetUrl(context, fileName),
-  subscribeTo: (viewModelName, aggregateIds, handler, callback?): PromiseOrVoid<Subscription> =>
-    subscribeTo(context, viewModelName, aggregateIds, handler, callback),
+  subscribeTo: (
+    viewModelName,
+    aggregateIds,
+    handler,
+    subscribeCallback?,
+    resubscribeCallback?
+  ): PromiseOrVoid<Subscription> =>
+    subscribeTo(context, viewModelName, aggregateIds, handler, subscribeCallback, resubscribeCallback),
   unsubscribe: (subscription: Subscription): PromiseOrVoid<void> => unsubscribe(context, subscription)
 })
