@@ -1,8 +1,8 @@
 import React from 'react'
-import { renderHook, act } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react-hooks'
 
 import { mocked } from 'ts-jest/utils'
-import { getApi, SubscribeCallback, SubscribeHandler, ResubscribeCallback } from 'resolve-api'
+import { getApi } from 'resolve-api'
 import { useSubscription } from '../use_subscription'
 import { ResolveContext } from '../context'
 
@@ -68,7 +68,7 @@ describe('useSubscription', () => {
         ),
       { wrapper: contextWrapper }
     )
-    rerender()
+
     expect(apiSubscribeMock).toBeCalledTimes(1)
     expect(apiSubscribeMock).toBeCalledWith(
       'view-model-name',
@@ -117,10 +117,6 @@ describe('useSubscription', () => {
       { wrapper: contextWrapper }
     )
 
-    renderer1()
-    renderer2()
-    renderer3()
-
     expect(apiSubscribeMock).toBeCalledTimes(3)
     expect(apiSubscribeMock).toBeCalledWith(
       'view-model-name',
@@ -152,7 +148,7 @@ describe('useSubscription', () => {
   })
 
   test('not subscribing if no such view model', () => {
-    renderHook(
+    const { rerender, unmount } = renderHook(
       () =>
         useSubscription(
           'unknown-view-model-name',
@@ -164,6 +160,7 @@ describe('useSubscription', () => {
       { wrapper: contextWrapper }
     )
 
+    unmount()
     expect(apiSubscribeMock).toBeCalledTimes(0)
     expect(apiUnsubscribeMock).toBeCalledTimes(0)
   })
