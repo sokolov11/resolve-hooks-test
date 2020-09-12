@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "global": "^4.4.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "resolve-api": "file:../resolve-api",
     "unfetch": "^4.1.0"
   },
