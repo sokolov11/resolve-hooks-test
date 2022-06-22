@@ -9771,20 +9771,20 @@ reselect@^3.0.1:
   resolved "https://registry.yarnpkg.com/reselect/-/reselect-3.0.1.tgz#efdaa98ea7451324d092b2b2163a6a1d7a9a2147"
   integrity sha1-79qpjqdFEyTQkrKyFjpqHXqaIUc=
 
-resolve-api-handler-awslambda@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-api-handler-awslambda/-/resolve-api-handler-awslambda-0.21.13.tgz#d523e2b935102622d8ce07bebcd7b25610ebc0db"
-  integrity sha512-14ynXm652sF/3+fdKHKAfcYqLbGpIsmCIJVZQsvITSQ5O4MVkFeMQSgdR7ufTK/b/vu7MUp5B0o8ZQnZny+ydg==
+resolve-api-handler-awslambda@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-api-handler-awslambda/-/resolve-api-handler-awslambda-0.22.5.tgz#f6cf13c3b8ae86623515570130062af12892b72d"
+  integrity sha512-zPR0zAKv0uzhWzK18UsYeQVT+UeufnyFLryhQ2K0K91fm5hVY3UohcumNDSH+nT08n8NIau/1AHpYQ0NuumrMQ==
   dependencies:
     "@babel/runtime" "^7.0.0"
     binary-case "1.1.4"
     content-disposition "0.5.2"
     cookie "0.3.1"
 
-resolve-api-handler-express@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-api-handler-express/-/resolve-api-handler-express-0.21.13.tgz#e9f017656d166a4c08cf8c68adbf71ce2276c258"
-  integrity sha512-3g+eUCkEgRRQgl6citZBQXuHN0JCOAmC49dfSY7h4yMj9BQ7MRZksmh82LHGwL9apkP4xGSJ1fudox8QqIHgLA==
+resolve-api-handler-express@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-api-handler-express/-/resolve-api-handler-express-0.22.5.tgz#5b43b81b42ac5775669e30afd38153b22b696f6a"
+  integrity sha512-7EZGSiYra1K7HLWQts+G2WGc3qSxUwIG8aPR72hZJZugITd52wmqf279ao7vgpQeE9wxyYKAqAFxS7Gq+aGbjQ==
   dependencies:
     "@babel/runtime" "^7.0.0"
     binary-case "1.1.4"
@@ -9793,7 +9793,7 @@ resolve-api-handler-express@0.21.13:
     mime-types "2.1.25"
     raw-body "2.3.3"
 
-"resolve-api@file:./resolve-api":
+"resolve-api@file:./resolve-api", "resolve-api@file:resolve-api":
   version "0.0.1"
   dependencies:
     global "^4.4.0"
@@ -9831,10 +9831,10 @@ resolve-cloud@*:
     semver "^6.3.0"
     yargs "^14.0.0"
 
-resolve-command@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-command/-/resolve-command-0.21.13.tgz#40e7cba711b816183c14d9d0ea865d89ef1eff11"
-  integrity sha512-8rcFzE7K/6PPxirUN74NAz0e1/t93TgijhYZUtAPWyyTMJfhWtWB4DoS4ujT3xQ5sQJUWTQsRqJrd7n9KXXBGw==
+resolve-command@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-command/-/resolve-command-0.22.5.tgz#eb2b68765d5dca7f53b5004722e7e989942648ac"
+  integrity sha512-aCRW9YI/M57ZOdmYLk9+FxIgKp3jnfXP5scbvEDJ5mQmmDEtFHTosS59RmeHrP25PS+nUerP/em+kob51heVBg==
   dependencies:
     "@babel/runtime" "^7.0.0"
 
@@ -9852,18 +9852,18 @@ resolve-cwd@^2.0.0:
   dependencies:
     resolve-from "^3.0.0"
 
-resolve-debug-levels@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-debug-levels/-/resolve-debug-levels-0.21.13.tgz#ee0903cc6ae92a0ad730f28991695dae5e5d54e2"
-  integrity sha512-3XVDgzvNXiOvGntIJp3CHZSFsqYbDEcnwW6rqgoJNklXxsENd0tP99uYbvjU3XJCWthh7VoEB+gmsg0QTikAdw==
+resolve-debug-levels@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-debug-levels/-/resolve-debug-levels-0.22.5.tgz#369b45a97be80a3e4fe4c5aa3f5bfc2515489bb1"
+  integrity sha512-zc/tJUXkdFaysAfbHFjPzl1m6r3WXyn6QUUDyVUet5z6Tl7DCJG8FoiDOHzPZ5L+Mb4pJcfYfK2fiQ/rMw2y6Q==
   dependencies:
     "@babel/runtime" "^7.0.0"
     debug "4.1.1"
 
-resolve-es@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-es/-/resolve-es-0.21.13.tgz#061320bfe140aa5e8eb40ad48d2bd54c01568c57"
-  integrity sha512-zUvlWhFHtB/qMLPSCCllsWu1kI5FPigGmyeiqu2od/kEioag6J5Ffh8EtPdxHrTez3UrLzTNg/s9zwJ/p/Bsag==
+resolve-es@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-es/-/resolve-es-0.22.5.tgz#42d91f3b6a2696e9694e9d518da3e47595fbb10a"
+  integrity sha512-lNLbwyKYlFfiutO5Kcr4WN95AKXulxpWgcWORpEWcpxkzIwGMN7tmNvtpH93ByxXRWLKphpe/tXX9TQ2B3kiCw==
   dependencies:
     "@babel/runtime" "^7.0.0"
 
@@ -9882,15 +9882,15 @@ resolve-from@^4.0.0:
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-4.0.0.tgz#4abcd852ad32dd7baabfe9b40e00a36db5f392e6"
   integrity sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==
 
-resolve-local-event-broker@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-local-event-broker/-/resolve-local-event-broker-0.21.13.tgz#d00c014cb52863fa012d304c4c291dd10d218646"
-  integrity sha512-aME1xxYiaQhtmrmYZKvOa0A+Gysy7EpCSZ6nsMJHdd35PCg2+pAaRClUv52ofZSJSDi2jKr78zsNKshvZGocPA==
+resolve-local-event-broker@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-local-event-broker/-/resolve-local-event-broker-0.22.5.tgz#36a29182fcddb30537393bf7704f64f7dc6a762c"
+  integrity sha512-vsAfOsBmfyq+tFByDo4kX2upC0G+yccvEGMbMrP2b/MHVGqrG3MPuEgux+KnyxdRgJkmPPWpmyDg8vFPLmzw+Q==
   dependencies:
     "@babel/runtime" "^7.0.0"
     cuid "^2.1.6"
-    resolve-debug-levels "0.21.13"
-    resolve-zeromq "0.21.13"
+    resolve-debug-levels "0.22.5"
+    resolve-zeromq "0.22.5"
     sqlite "^3.0.2"
 
 resolve-pathname@^3.0.0:
@@ -9898,55 +9898,56 @@ resolve-pathname@^3.0.0:
   resolved "https://registry.yarnpkg.com/resolve-pathname/-/resolve-pathname-3.0.0.tgz#99d02224d3cf263689becbb393bc560313025dcd"
   integrity sha512-C7rARubxI8bXFNB/hqcp/4iUeIXJhJZvFPFPiSPRnhU5UPxzMFIl+2E6yY6c4k9giDJAhtV+enfA+G89N6Csng==
 
-resolve-query@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-query/-/resolve-query-0.21.13.tgz#8f5fd0bcddbbf86618dcf7a8ead69f9c6506aa81"
-  integrity sha512-SFJPxfScOkamMeW9DvJxM4diKHB/95YC1UMB3udo4zuOjrg33FUDlq2eVd3bzNCu2R8KN66i19b0rwLMxP7LLg==
+resolve-query@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-query/-/resolve-query-0.22.5.tgz#19e614166dd901b975542f1928fd102747a346ea"
+  integrity sha512-TXfwL506n5in5wIKzGrgIoFFraijrof21SCKqxdIAgR2TmoK8ztHrV5z64jlQsd9xA1Go1Nbl+vuAE3ac4ybkg==
   dependencies:
     "@babel/runtime" "^7.0.0"
-    resolve-debug-levels "0.21.13"
+    resolve-debug-levels "0.22.5"
 
-"resolve-react-hooks@file:./resolve-react":
+"resolve-react-hooks@file:./resolve-react-copy":
   version "1.0.0"
   dependencies:
     global "^4.4.0"
     node-fetch "^2.6.0"
+    resolve-api "file:resolve-api"
     unfetch "^4.1.0"
 
-resolve-readmodel-base@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-readmodel-base/-/resolve-readmodel-base-0.21.13.tgz#9007390e7387f99179fe3c16c83de4f26d87a024"
-  integrity sha512-vOWtJZdO9VuAmMi6Tv84WjQLWbXUVa7lxwIJFTBjFBbAj6iQR0T7s7h8bMgnC8t5vmdUjx1ATmMgCi7Ye9loBQ==
+resolve-readmodel-base@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-readmodel-base/-/resolve-readmodel-base-0.22.5.tgz#3ecd8eb0704817706860c84e38dcce642eb9ef06"
+  integrity sha512-9DY3ahIz8rhfUf+EOp9P+UXwA7Kp6XcM+z0wAXJtwdItYzb8V9QeiEGdQ2xj+YlByTrF0YyjAFF4N3Vuvw4Gaw==
   dependencies:
     "@babel/runtime" "^7.0.0"
     uuid "^3.3.2"
 
-resolve-readmodel-lite@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-readmodel-lite/-/resolve-readmodel-lite-0.21.13.tgz#3229e4ee8cf7523a4b7087f89c6e88e3facb399d"
-  integrity sha512-AGicu1Y8MuTI71X+FnBsMdbD1jGWIsBAePK07LNeGA2cokAdfCDkm716Ln1zUvxy7OKjqaK4nqYBisi1m2kMdw==
+resolve-readmodel-lite@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-readmodel-lite/-/resolve-readmodel-lite-0.22.5.tgz#1625a1ff4a017d087228ab4260c605faca04387c"
+  integrity sha512-dgzUJmAEuUgg1O/VU2yZMaAqkf0ldqRM+DSy4zyiZHRlRi1aRtSLi6bKEEsq2+3Ws2soCBwRQ7r9QY35AvMWBg==
   dependencies:
     "@babel/runtime" "^7.0.0"
-    resolve-readmodel-base "0.21.13"
+    resolve-readmodel-base "0.22.5"
     sqlite "^3.0.2"
     tmp "^0.1.0"
     uuid "^3.3.2"
 
-resolve-readmodel-mysql@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-readmodel-mysql/-/resolve-readmodel-mysql-0.21.13.tgz#64f86d97e62a61422aac68d6497b3576dfb87d77"
-  integrity sha512-NfjnX7LO1gsKtXep+kEHBMtIQdWaSs7ESgCTokPZDidw7RGUADS6Wh+vHTxGCr/FAH11yP1LkbREbxu8OXhP3w==
+resolve-readmodel-mysql@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-readmodel-mysql/-/resolve-readmodel-mysql-0.22.5.tgz#9007fbdf0571740704dd07018a19946d281f7e56"
+  integrity sha512-SbvJqMjk1i2Cty4L5BjrHLCYFMjOz5UQ/ZmDtz6RslCUTAaTjWZ3Vaeu7HDXcr+ZPdBk2HPftOdrHEfMeoWWfQ==
   dependencies:
     "@babel/runtime" "^7.0.0"
     mysql2 "^1.6.1"
-    resolve-readmodel-base "0.21.13"
+    resolve-readmodel-base "0.22.5"
     sql-formatter "^2.3.1"
     uuid "^3.3.2"
 
-resolve-redux@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-redux/-/resolve-redux-0.21.13.tgz#91af1af3a335490e681db935ce5c666d0ba4a9a8"
-  integrity sha512-v8JutjfgpRtvLcs/SC2ExforV90lIzZHREyK3b1fCBZ0/auPubQDI7ck0CxLbWSr9T30O0fmKsuDJBW3yHjjzg==
+resolve-redux@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-redux/-/resolve-redux-0.22.5.tgz#5d5e68692aa14e7a2f1fc7b5144e5d7613650163"
+  integrity sha512-7+St7vK2SW7dXrOEQGFcdriOjA6nfuTHr1Q67hSNP7Q2m1KIKIi/6A+kEM/cVhUCe6iOz5o3Z9BIxeBOHj4PLQ==
   dependencies:
     "@babel/runtime" "^7.0.0"
     hoist-non-react-statics "^3.2.1"
@@ -9959,10 +9960,10 @@ resolve-redux@0.21.13:
     unfetch "^4.0.1"
     uuid "^3.3.2"
 
-resolve-runtime@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-runtime/-/resolve-runtime-0.21.13.tgz#a675bf81983a8029d7d543104eb31f76025931cd"
-  integrity sha512-J4dnWrXLCUJ+B+HKFnMVA7rDafLsyQd0/doZwFfn9i94tn5tVX6jhgy0n1wS7QE1Qs1INI0k5jujhDes6nmILQ==
+resolve-runtime@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-runtime/-/resolve-runtime-0.22.5.tgz#f02ffc1c14763f20237e67ce54bf2653655a25b2"
+  integrity sha512-UYirDefsq2TjPfaUV0peYTjY+9r4IxO7BIIAXP5ULT8cl/qyjUNYrMzBkezclTU5Ri7f8EJ4gSbq2TUehNH/fg==
   dependencies:
     "@babel/runtime" "^7.0.0"
     aws-signature-v4 "^1.3.0"
@@ -9979,21 +9980,21 @@ resolve-runtime@0.21.13:
     mqtt-connection "^4.0.0"
     multer "^1.4.2"
     proper-lockfile "^3.2.0"
-    resolve-api-handler-awslambda "0.21.13"
-    resolve-api-handler-express "0.21.13"
-    resolve-command "0.21.13"
-    resolve-debug-levels "0.21.13"
-    resolve-es "0.21.13"
-    resolve-local-event-broker "0.21.13"
-    resolve-query "0.21.13"
-    resolve-saga "0.21.13"
-    resolve-scheduler-cloud "0.21.13"
-    resolve-scheduler-local "0.21.13"
-    resolve-snapshot-lite "0.21.13"
-    resolve-storage-base "0.21.13"
-    resolve-storage-lite "0.21.13"
-    resolve-subscribe-socket.io "0.21.13"
-    resolve-zeromq "0.21.13"
+    resolve-api-handler-awslambda "0.22.5"
+    resolve-api-handler-express "0.22.5"
+    resolve-command "0.22.5"
+    resolve-debug-levels "0.22.5"
+    resolve-es "0.22.5"
+    resolve-local-event-broker "0.22.5"
+    resolve-query "0.22.5"
+    resolve-saga "0.22.5"
+    resolve-scheduler-cloud "0.22.5"
+    resolve-scheduler-local "0.22.5"
+    resolve-snapshot-lite "0.22.5"
+    resolve-storage-base "0.22.5"
+    resolve-storage-lite "0.22.5"
+    resolve-subscribe-socket.io "0.22.5"
+    resolve-zeromq "0.22.5"
     route-trie "^3.0.0"
     socket.io "^2.1.1"
     source-map-support "^0.5.9"
@@ -10002,42 +10003,42 @@ resolve-runtime@0.21.13:
     websocket-stream "^5.1.2"
     ws "^5.2.1"
 
-resolve-saga@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-saga/-/resolve-saga-0.21.13.tgz#07dafb69ffe24f06a3737a680d8a917b973c63ef"
-  integrity sha512-40DuhEx6sM8KiS/gNIUe8/UaWdX3z/IXBEkY92yc3/4XWK0sEIkjgJW1vyTG/+KRrFwVLyppSz4NT/KNaK7V/A==
+resolve-saga@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-saga/-/resolve-saga-0.22.5.tgz#8bb10d170f28034dfc32cae4b724980d49a04f94"
+  integrity sha512-+GwwSkuzXTv/xaav8O6tg/5A6iKMgcUk7C/rUN/kzxYsuRh8R0sahVnd0kheXu6XsOcwvt5mdrbHDyEgz3F0sg==
   dependencies:
     "@babel/runtime" "^7.0.0"
-    resolve-command "0.21.13"
-    resolve-debug-levels "0.21.13"
-    resolve-query "0.21.13"
+    resolve-command "0.22.5"
+    resolve-debug-levels "0.22.5"
+    resolve-query "0.22.5"
     uuid "^3.3.3"
 
-resolve-scheduler-cloud@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-scheduler-cloud/-/resolve-scheduler-cloud-0.21.13.tgz#81b83a8de83ef91a592e15c1b264c2017a527c08"
-  integrity sha512-X2Ih0cdFO6IQtVn3Hc5PPnfAiV7avNwCFp/w7bao19WucPlIR04xyUprnbwpqPQx+UypSQrokqD0EH3mGh1z4w==
+resolve-scheduler-cloud@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-scheduler-cloud/-/resolve-scheduler-cloud-0.22.5.tgz#89bc51d6dd2fb8dc3bafdbcd2742dc19949785c5"
+  integrity sha512-Jau4Rp8wxEbyc/n3/W72EeDBX5JPkTLxdHIgdNcZ/pxf+p5NyOtojjzeMC7E509XEzaw8PhrGdXXNHZKOm3y6g==
   dependencies:
     "@babel/runtime" "^7.0.0"
     binary-case "1.1.4"
     content-disposition "0.5.2"
     cookie "0.3.1"
-    resolve-debug-levels "0.21.13"
+    resolve-debug-levels "0.22.5"
 
-resolve-scheduler-local@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-scheduler-local/-/resolve-scheduler-local-0.21.13.tgz#79515c8263068b9525bdb1ef087b5a5b2870e3f1"
-  integrity sha512-nPvCEDMOY3e022JhoOJqqYkjMLzWrszuo1EETrEoEkATpw64LPGlAl8Jw3QpTEBC6Jb8Y46cYhO8ivCA4tA+MA==
+resolve-scheduler-local@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-scheduler-local/-/resolve-scheduler-local-0.22.5.tgz#de75cda2519b1b7a9985865a38c397291e806f2d"
+  integrity sha512-0BVNE7VbmcBolFDvc8TJIIVImsptePhB65fXdZJSQhQFrSPxotKQFG3U01EObA5FaLO4HXWJ+15sr36hBVE9QA==
   dependencies:
     "@babel/runtime" "^7.0.0"
     binary-case "1.1.4"
     content-disposition "0.5.2"
     cookie "0.3.1"
 
-resolve-scripts@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-scripts/-/resolve-scripts-0.21.13.tgz#21e2ef4cbe160ad153b5b8f869fa32db6093a4d7"
-  integrity sha512-wUebIDdzasf36mz4O1ywmlM9wIbF07oeTZmijfWS63FagschBtTweg+F/EeTnYf5lP2x6zIGzcpCpCeNQWGZ0A==
+resolve-scripts@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-scripts/-/resolve-scripts-0.22.5.tgz#833f0139a4c2ba69f95e027ba962da0230f8187a"
+  integrity sha512-8jYEE6goq4do+SR+CYcLlj62VanEyxVzZaMg+HhwDCLE4XPZu7eZFx/2ZkFMpvnQJC9ORYOT953cAp2uH97ZdQ==
   dependencies:
     "@babel/core" "^7.0.0"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
@@ -10060,7 +10061,7 @@ resolve-scripts@0.21.13:
     isomorphic-fetch "^2.2.1"
     loader-utils "^1.2.3"
     opn "^6.0.0"
-    resolve-runtime "0.21.13"
+    resolve-runtime "0.22.5"
     respawn "^2.6.0"
     route-trie "^3.0.0"
     socket.io-client "^2.2.0"
@@ -10070,52 +10071,52 @@ resolve-scripts@0.21.13:
     webpack "^4.30.0"
     webpack-node-externals "^1.7.2"
 
-resolve-snapshot-lite@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-snapshot-lite/-/resolve-snapshot-lite-0.21.13.tgz#f7de8cee80c4f5cd5c41e1e9c2eda67358887a3d"
-  integrity sha512-GPhcsVKLhg4LD/XyO691NZ0u24LDqlbmqz5nFBUhUWNds/6vRbpLEx0Qnq5HBd5CAD9pX8VyJNiOLUeyqqld2g==
+resolve-snapshot-lite@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-snapshot-lite/-/resolve-snapshot-lite-0.22.5.tgz#76eadc28d388744ee6b231db7b3eb60c9171eb50"
+  integrity sha512-+AhinfgcAPbLEuMbdjQ5uu1LhvyM2W230PTXVxl6OlRPe4cdcAWeYPQMFKizpr1ceSElj1vQj/tDFBMzoQyZOw==
   dependencies:
     "@babel/runtime" "^7.0.0"
     sqlite "^3.0.3"
     tmp "^0.1.0"
 
-resolve-storage-base@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-storage-base/-/resolve-storage-base-0.21.13.tgz#5c04f3f913d8542a801efbde89b2a948cd0ac7c2"
-  integrity sha512-9jzW5fgcqyuVx2iW7IsmczROhkMJ2nmOlQgRWfDwXllzdy/g+GGq4zVrcHdef37CE4AdQbO2SWm4+Agy09d0oA==
+resolve-storage-base@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-storage-base/-/resolve-storage-base-0.22.5.tgz#5f95b5d7acd45c678362f42c415edc33eea67733"
+  integrity sha512-cKeRB2PMBQPHtkFxOxXN8zJNyJPF3J14fTD5dGbUXPvmgrS3KrEjm2P7n3zd/TdkrIucLuuwI1drS/NAE8CZuw==
   dependencies:
     "@babel/runtime" "^7.0.0"
 
-resolve-storage-lite@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-storage-lite/-/resolve-storage-lite-0.21.13.tgz#1d4747a109c206d176a471e5257371de8f5c7fcc"
-  integrity sha512-vqf/PHYY0Af642iGJNcZpKXp/2IFY96dY03t8AYa+L79f2oaIpjm26aF5WkwUj14c+OBKaUU6PrgWPs9siJLfw==
+resolve-storage-lite@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-storage-lite/-/resolve-storage-lite-0.22.5.tgz#30cbc443208f8014200f269a0d886420ede3ed8a"
+  integrity sha512-xtGMZjeCewNvzGS7DWx3WCUFocGuB/S/HX6wRAJRpcXfAo1lfh6xse7TMJRq7AnfLjKNe4VYZWM+yLRFpozn4A==
   dependencies:
     "@babel/runtime" "^7.0.0"
-    resolve-storage-base "0.21.13"
+    resolve-storage-base "0.22.5"
     sqlite "^3.0.2"
     tmp "^0.1.0"
 
-resolve-storage-postgresql-serverless@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-storage-postgresql-serverless/-/resolve-storage-postgresql-serverless-0.21.13.tgz#cd95deda06244e24cfc2a073c1b02f9130d83a81"
-  integrity sha512-IjYunHXEKLwK69NU+QNJ0zh9Tnv6F64ANtSxq2HrdJuI/YKmqvAwnGDd0yg7qaV+wp3L1oLF5kwDvGc1fkaOEg==
+resolve-storage-postgresql-serverless@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-storage-postgresql-serverless/-/resolve-storage-postgresql-serverless-0.22.5.tgz#1017ac008f39c591b30702ed45e8a6eb2b1f17ec"
+  integrity sha512-iwzeTaZ4nHc8jcPPdYE19WQJ1CSOpum3FC0HLFb6mSHZ9Znr0gSEW6EZvPSV18SIYz4JKljWljW7Wovlt47zcQ==
   dependencies:
     "@babel/runtime" "^7.0.0"
-    resolve-storage-base "0.21.13"
+    resolve-storage-base "0.22.5"
 
-resolve-subscribe-mqtt@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-subscribe-mqtt/-/resolve-subscribe-mqtt-0.21.13.tgz#54f54519c00bec2d3b4c262b45cf752d3bb7dd11"
-  integrity sha512-nz0e4zgqCYt7au3bbOp6bxZkX2Mzy3F7D9tWWNBCDgATrLhNMNVzgfAMnhXH54XLyv2FmZOwgf+rdZqihqJepw==
+resolve-subscribe-mqtt@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-subscribe-mqtt/-/resolve-subscribe-mqtt-0.22.5.tgz#2c2c1dc9f5d36b7a3462947ceccccf1b15f9e553"
+  integrity sha512-Mv6e3V93Jvmk/3oWu+a2LKJrqrOHT9NTQwabYJ8QSt1S3/eLrnUdgFO1ovGUuUyeCbCtQnXzlc1CGJb3KjO7+g==
   dependencies:
     "@babel/runtime" "^7.0.0"
     mqtt "^2.18.8"
 
-resolve-subscribe-socket.io@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-subscribe-socket.io/-/resolve-subscribe-socket.io-0.21.13.tgz#f4b0a886a0cb264213bd21d6858257badcf0208f"
-  integrity sha512-g0iw+Dc2bZKQAYHMlYI7n9KWrhM60HPntKm3Puw2YcDC1LKtshm8W4DL/+MIcS//q+fiXFUUBRs1K5wzfC+IAw==
+resolve-subscribe-socket.io@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-subscribe-socket.io/-/resolve-subscribe-socket.io-0.22.5.tgz#3792d494e71eeda503c778aaf0d50af2760a8123"
+  integrity sha512-h4JU4MF6syaiiEl31xtvYQICU9N0ymw5plVZc6TfiGNhysLBtlprsz0FNt6aBZliA1e4JMqRQvhYHPzSKhL8lw==
   dependencies:
     "@babel/runtime" "^7.0.0"
     socket.io-client "2.1.1"
@@ -10125,10 +10126,10 @@ resolve-url@^0.2.1:
   resolved "https://registry.yarnpkg.com/resolve-url/-/resolve-url-0.2.1.tgz#2c637fe77c893afd2a663fe21aa9080068e2052a"
   integrity sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=
 
-resolve-zeromq@0.21.13:
-  version "0.21.13"
-  resolved "https://registry.yarnpkg.com/resolve-zeromq/-/resolve-zeromq-0.21.13.tgz#6596fb790d9abcc6598ad8a37d20fb59e2124ff5"
-  integrity sha512-86XK/bSFOlo+4XS8J6G8qgTnjWSBdkLTIQO5xQwFdVWf4QotoUAjlVLaoDj53Z+iRe8wM4uN80ZOlUhnVaaK+w==
+resolve-zeromq@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/resolve-zeromq/-/resolve-zeromq-0.22.5.tgz#436c1bfc562d005c13dafdd88045ec43cd33bf81"
+  integrity sha512-+PQ2c+8O3NJySumAP4Nz9G8UpYQ2eVrZ6s+XOsyUCs5CajyjCC+QPiPKJ0Uh8AOjwgB5HdYzSGXZxTo8N2JZ7g==
   dependencies:
     "@babel/runtime" "^7.0.0"
     zeromq "^6.0.0-beta.2"
@@ -10478,9 +10479,9 @@ shebang-regex@^3.0.0:
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
 shell-quote@^1.6.1:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.7.2.tgz#67a7d02c76c9da24f99d20808fcaded0e0e04be2"
-  integrity sha512-mRz/m/JVscCrkMyPqHc/bczi3OQHkLTqXHEFu0zDhK/qfv3UcOA4SVmRCLmos4bhjr9ekVQubj/R7waKapmiQg==
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.7.3.tgz#aa40edac170445b9a431e17bb62c0b881b9c4123"
+  integrity sha512-Vpfqwm4EnqGdlsBFNmHhxhElJYrdfcxPThu+ryKS5J8L/fhAwLazFZtq+S+TWZ9ANj2piSQLGj6NQg+lKPmxrw==
 
 shellwords@^0.1.1:
   version "0.1.1"
